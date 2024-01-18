@@ -1,9 +1,12 @@
 ﻿using BNS360.Core.Errors;
+using BNS360.Core.Helpers.Settings;
 using BNS360.Core.Services.Authentication;
 using BNS360.Core.Services.Shared;
 using BNS360.Reposatory.Repositories.Authentication;
 using BNS360.Reposatory.Repositories.Shared;
+using MailKit;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace BNS360.Api.Extentions
 {
@@ -17,7 +20,7 @@ namespace BNS360.Api.Extentions
                     options.InvalidModelStateResponseFactory = context =>
                     {
                         var errors = context.ModelState
-                            .Where(entry => entry.Value.Errors.Any())
+                            .Where(entry => entry.Value!.Errors.Any())
                             .ToDictionary(
                                 kvp => kvp.Key,
                                 kvp => kvp.Value?.Errors.Select(e => e.ErrorMessage).ToList()
@@ -26,6 +29,8 @@ namespace BNS360.Api.Extentions
                         return new BadRequestObjectResult(new ApiValidationErrorResponse(400, null, errors));
                     };
                 });
+
+
             service.AddSingleton<IJwtGenerator, JwtGenerator>();
             service.AddScoped<IOtpService, OtpService>();
             service.AddScoped<IEmailService, EmailService>();

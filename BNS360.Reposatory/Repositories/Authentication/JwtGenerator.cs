@@ -1,6 +1,8 @@
 ﻿using BNS360.Core.Entities.Identity;
+using BNS360.Core.Helpers.Settings;
 using BNS360.Core.Services.Authentication;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
@@ -14,11 +16,11 @@ namespace BNS360.Reposatory.Repositories.Authentication
 {
     public class JwtGenerator : IJwtGenerator
     {
-        private readonly IConfiguration _config;
+        private readonly IOptionsMonitor<JwtSettings> _jwtSettings;
 
-        public JwtGenerator(IConfiguration config)
+        public JwtGenerator(IOptionsMonitor<JwtSettings> jwtSettings)
         {
-            _config = config;
+            _jwtSettings = jwtSettings;
         }
 
         public string GenerateJwt(AppUser user)
@@ -32,14 +34,14 @@ namespace BNS360.Reposatory.Repositories.Authentication
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
-                _config["JWT:Key"] ?? throw new InvalidOperationException("secret key is null")));
+                _jwtSettings.CurrentValue.Key ?? throw new InvalidOperationException("secret key is null")));
 
             var token = new JwtSecurityToken
                 (
                     claims: authClaims,
-                    issuer: _config["JWT:issuer"],
-                    audience: _config["JWT:audience"],
-                    expires: DateTime.UtcNow.AddMinutes(double.Parse(_config["JWT:expires"]!)),
+                    issuer: _jwtSettings.CurrentValue.Issuer,
+                    audience: _jwtSettings.CurrentValue.Audience,
+                    expires: DateTime.UtcNow.AddMinutes(_jwtSettings.CurrentValue.Expires),
                     signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256)
                 );
             return new JwtSecurityTokenHandler().WriteToken(token);

@@ -2,6 +2,7 @@ using BNS360.Api.Extentions;
 using BNS360.Api.Midlewares;
 using BNS360.Core.Entities.Identity;
 using BNS360.Core.Errors;
+using BNS360.Core.Helpers.Settings;
 using BNS360.Core.Services;
 using BNS360.Reposatory.Data.Identity;
 using BNS360.Reposatory.Repositories;
@@ -17,6 +18,8 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 #region configure service
+builder.Services.Configure<MailSettings>(builder.Configuration.GetSection(nameof(MailSettings)));
+builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection(nameof(JwtSettings)));
 
 builder.Services.AddAplictionService();
 builder.Services.AddSwaggerService();
@@ -24,7 +27,6 @@ builder.Services.AddIdentityServices(builder.Configuration);
 builder.Services.AddMemoryCache();
 
 builder.Services.AddDbContext<BNS360IdentityDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("Defualt")));
-
 #endregion
 
 var app = builder.Build();

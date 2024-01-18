@@ -1,8 +1,10 @@
 ﻿using BNS360.Core.Entities.Identity;
+using BNS360.Core.Helpers.Settings;
 using BNS360.Reposatory.Data.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
@@ -12,6 +14,8 @@ namespace BNS360.Api.Extentions
     {
         public static IServiceCollection AddIdentityServices(this IServiceCollection services, IConfiguration configuration)
         {
+            var serviceProvider = services.BuildServiceProvider();
+            var jwt = serviceProvider.GetRequiredService<IOptionsMonitor<JwtSettings>>().CurrentValue;
             services.AddIdentity<AppUser, IdentityRole>(option =>
             {
                 option.User.RequireUniqueEmail = true;
@@ -38,10 +42,10 @@ namespace BNS360.Api.Extentions
             options.SaveToken = true;
             options.TokenValidationParameters = new TokenValidationParameters
             {
-                ValidIssuer = configuration["jwt:Issuer"],
-                ValidAudience = configuration["jwt:Audience"],
+                ValidIssuer = jwt.Issuer,
+                ValidAudience = jwt.Audience,
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
-                        configuration["JWT:Key"] ?? throw new InvalidOperationException("secret key is null")))
+                        jwt.Key ?? throw new InvalidOperationException("secret key is null")))
 
             };
 });

@@ -1,6 +1,5 @@
 ﻿using BNS360.Core.Dtos.Request.Identity;
 using BNS360.Core.Errors;
-using BNS360.Core.Helpers.Extintions;
 using BNS360.Core.Services.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -44,8 +43,6 @@ namespace BNS360.Api.Controllers
         [HttpPost("verfiy-otp")]
         public IActionResult VerfiyOtp(VerfiyOtp dto)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(new { Response = new ApiResponse(400), ModelErrors = ModelState.GetModelErrors() });
 
             var result = _authService.VerfiyOtp(dto);
             return result.StatusCode == 200 ? Ok(result) : BadRequest(result);
@@ -55,8 +52,6 @@ namespace BNS360.Api.Controllers
         public async Task<IActionResult> ResetPassword(ResetPassword dto)
         {
 
-            if (!ModelState.IsValid)
-                return BadRequest(new { Response = new ApiResponse(400), ModelErrors = ModelState.GetModelErrors() });
 
             var result = await _authService.ResetPasswordAsync(dto);
 

@@ -1,29 +1,26 @@
-﻿using BNS360.Core.Services.Shared;
+﻿using BNS360.Core.Helpers.Settings;
+using BNS360.Core.Services.Shared;
 using MailKit.Net.Smtp;
 using MailKit.Security;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using MimeKit;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace BNS360.Reposatory.Repositories.Shared
 {
     public class EmailService : IEmailService
     {
-        private readonly IConfiguration _config;
+        private readonly MailSettings _mailSettings;
 
-        public EmailService(IConfiguration config)
+        public EmailService(IOptionsMonitor<MailSettings> options)
         {
-            _config = config;
+            _mailSettings = options.CurrentValue;
         }
 
         public async Task SendEmailAsync(string toEmail, string subject, string body)
         {
             var message = new MimeMessage();
-            message.From.Add(new MailboxAddress(_config["mail_settings:displayed_name"], _config["mail_settings:from"]));
+            message.From.Add(new MailboxAddress(_mailSettings.DisplayedName, _mailSettings.Email));
             message.To.Add(new MailboxAddress("", toEmail));
             message.Subject = subject;
 
@@ -34,10 +31,9 @@ namespace BNS360.Reposatory.Repositories.Shared
 
             using (var client = new SmtpClient())
             {
-                await client.ConnectAsync(_config["mail_settings:smtp_server"],
-                    int.Parse(_config["mail_settings:port"] ?? throw new InvalidOperationException("port is null")),
+                await client.ConnectAsync(_mailSettings.SmtpServer,_mailSettings.Port,
                     SecureSocketOptions.StartTls);
-                await client.AuthenticateAsync(_config["mail_settings:from"], _config["mail_settings:password"]);
+                await client.AuthenticateAsync(_mailSettings.Email, _mailSettings.Password);
                 await client.SendAsync(message);
                 await client.DisconnectAsync(true);
             }

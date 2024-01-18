@@ -1,4 +1,4 @@
-﻿using BNS360.Core.Services;
+﻿using BNS360.Core.Services.Shared;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.Extensions.Configuration;
@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BNS360.Reposatory.Repositories
+namespace BNS360.Reposatory.Repositories.Shared
 {
     public class EmailService : IEmailService
     {
@@ -17,7 +17,7 @@ namespace BNS360.Reposatory.Repositories
 
         public EmailService(IConfiguration config)
         {
-            _config = config;        
+            _config = config;
         }
 
         public async Task SendEmailAsync(string toEmail, string subject, string body)
@@ -31,7 +31,7 @@ namespace BNS360.Reposatory.Repositories
             {
                 Text = body
             };
-            
+
             using (var client = new SmtpClient())
             {
                 await client.ConnectAsync(_config["mail_settings:smtp_server"],

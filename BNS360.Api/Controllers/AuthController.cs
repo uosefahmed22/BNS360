@@ -1,7 +1,7 @@
 ﻿using BNS360.Core.Dtos.Request.Identity;
 using BNS360.Core.Errors;
 using BNS360.Core.Helpers.Extintions;
-using BNS360.Core.Services;
+using BNS360.Core.Services.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;

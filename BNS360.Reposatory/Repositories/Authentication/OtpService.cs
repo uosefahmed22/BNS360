@@ -1,8 +1,8 @@
-﻿using BNS360.Core.Services;
+﻿using BNS360.Core.Services.Authentication;
 using Microsoft.Extensions.Caching.Memory;
 using OtpNet;
 
-namespace BNS360.Reposatory.Repositories
+namespace BNS360.Reposatory.Repositories.Authentication
 {
     public class OtpService : IOtpService
     {
@@ -12,7 +12,7 @@ namespace BNS360.Reposatory.Repositories
         {
             _cache = cache;
         }
-            
+
         public string GenerateOtp(string email)
         {
             var key = KeyGeneration.GenerateRandomKey(32);
@@ -39,20 +39,20 @@ namespace BNS360.Reposatory.Repositories
             return isValiddOtp;
         }
 
-        
+
         private void StoreKeyInCache(string email, byte[] key)
             =>
             // Store the key in the memory cache with a specific key name
-            _cache.Set(email, key, TimeSpan.FromMinutes(60)); 
-        
+            _cache.Set(email, key, TimeSpan.FromMinutes(60));
+
 
         private byte[]? RetrieveKeyFromCache(string email)
         {
             // Retrieve the key associated with the email from the memory cache
-            if (_cache.TryGetValue(email, out byte[]? key))           
+            if (_cache.TryGetValue(email, out byte[]? key))
                 return key;
-            
-            return null; 
+
+            return null;
         }
     }
 }

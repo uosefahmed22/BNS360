@@ -51,19 +51,19 @@ namespace BNS360.Reposatory.Data.Identity.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "54c127ab-bfe4-48d5-9984-0a68d6551588",
+                            Id = "f1bbb3a2-a96e-49fa-aa72-a83fb715d5de",
                             Name = "Default",
                             NormalizedName = "DEFAULT"
                         },
                         new
                         {
-                            Id = "9d0792be-e24b-4278-8a4d-375aa19310eb",
+                            Id = "9cd90089-cbbe-4a54-b876-bed0fc04a0cb",
                             Name = "BusinessOwner",
                             NormalizedName = "BUSINESSOWNER"
                         },
                         new
                         {
-                            Id = "fa6a9d03-2c42-4c6a-a1ee-15f3105c141a",
+                            Id = "4680d326-1ce4-46f8-83d4-d6f2ab7e35e0",
                             Name = "ServiceProvider",
                             NormalizedName = "SERVICEPROVIDER"
                         });

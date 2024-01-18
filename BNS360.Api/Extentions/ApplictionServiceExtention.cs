@@ -1,6 +1,8 @@
 ﻿using BNS360.Core.Errors;
-using BNS360.Core.Services;
-using BNS360.Reposatory.Repositories;
+using BNS360.Core.Services.Authentication;
+using BNS360.Core.Services.Shared;
+using BNS360.Reposatory.Repositories.Authentication;
+using BNS360.Reposatory.Repositories.Shared;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BNS360.Api.Extentions
@@ -24,10 +26,11 @@ namespace BNS360.Api.Extentions
                         return new BadRequestObjectResult(new ApiValidationErrorResponse(400, null, errors));
                     };
                 });
+            service.AddSingleton<IJwtGenerator, JwtGenerator>();
             service.AddScoped<IOtpService, OtpService>();
             service.AddScoped<IEmailService, EmailService>();
             service.AddScoped<IAuthService, AuthService>();
-        
+            service.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             return service;
 
         }

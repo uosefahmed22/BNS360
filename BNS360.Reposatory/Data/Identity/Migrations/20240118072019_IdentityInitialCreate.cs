@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace BNS360.Reposatory.Data.Identity.Migrations
 {
     /// <inheritdoc />
-    public partial class intialidentitymigrations : Migration
+    public partial class IdentityInitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -165,9 +165,9 @@ namespace BNS360.Reposatory.Data.Identity.Migrations
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { "54c127ab-bfe4-48d5-9984-0a68d6551588", null, "Default", "DEFAULT" },
-                    { "9d0792be-e24b-4278-8a4d-375aa19310eb", null, "BusinessOwner", "BUSINESSOWNER" },
-                    { "fa6a9d03-2c42-4c6a-a1ee-15f3105c141a", null, "ServiceProvider", "SERVICEPROVIDER" }
+                    { "4680d326-1ce4-46f8-83d4-d6f2ab7e35e0", null, "ServiceProvider", "SERVICEPROVIDER" },
+                    { "9cd90089-cbbe-4a54-b876-bed0fc04a0cb", null, "BusinessOwner", "BUSINESSOWNER" },
+                    { "f1bbb3a2-a96e-49fa-aa72-a83fb715d5de", null, "Default", "DEFAULT" }
                 });
 
             migrationBuilder.CreateIndex(

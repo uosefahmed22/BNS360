@@ -1,0 +1,14 @@
+[
+  {
+    "Name": "Restorants",
+    "PictureUrl": "wwwroot/categories"
+  },
+  {
+    "Name": "Cafe",
+    "PictureUrl": "wwwroot/categories"
+  },
+  {
+    "Name": "SuperMarkets",
+    "PictureUrl": "wwwroot/categories"
+  }
+]

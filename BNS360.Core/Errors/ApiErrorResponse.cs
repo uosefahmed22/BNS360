@@ -9,7 +9,7 @@ namespace BNS360.Core.Errors
         public int StatusCode { get; set; }
 
         [JsonIgnore(Condition =JsonIgnoreCondition.WhenWritingNull)]
-        public string? ErrorMessage { get; set; }
+        public string? Message { get; set; }
 
         public ApiResponse()
         {
@@ -18,7 +18,7 @@ namespace BNS360.Core.Errors
         public ApiResponse(int statusCode, string? errorMessage = null)
         {
             StatusCode = statusCode;
-            ErrorMessage = errorMessage ?? GetDefaultErrorMessage(statusCode);
+            Message = errorMessage ?? GetDefaultErrorMessage(statusCode);
         }
 
         private string? GetDefaultErrorMessage(int statusCode)

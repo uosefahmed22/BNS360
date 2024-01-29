@@ -16,15 +16,16 @@ namespace BNS360.Api.Midlewares
             _env = env;
         }
 
-        public RequestDelegate _next {  get; set; }
-        public ILogger<ExeptionMiddleWares> _Logger { get; set; }
-        public IHostEnvironment _env { get; set; }
-    
+        private RequestDelegate _next {  get; set; }
+        private ILogger<ExeptionMiddleWares> _Logger { get; set; }
+        private IHostEnvironment _env { get; set; }
+        
 
         public async Task Invoke(HttpContext context)
         {            
             try
             {
+                var authHeader = context.Request.Headers.Authorization;
                 await _next(context);
             }
             catch (Exception ex)

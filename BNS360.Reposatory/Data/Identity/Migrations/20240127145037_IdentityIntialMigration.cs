@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace BNS360.Reposatory.Data.Identity.Migrations
 {
     /// <inheritdoc />
-    public partial class IdentityInitialCreate : Migration
+    public partial class IdentityIntialMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -52,6 +52,20 @@ namespace BNS360.Reposatory.Data.Identity.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Review",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Rate = table.Column<float>(type: "real", nullable: false),
+                    Comment = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    BusnissId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Review", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -165,9 +179,9 @@ namespace BNS360.Reposatory.Data.Identity.Migrations
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { "4680d326-1ce4-46f8-83d4-d6f2ab7e35e0", null, "ServiceProvider", "SERVICEPROVIDER" },
-                    { "9cd90089-cbbe-4a54-b876-bed0fc04a0cb", null, "BusinessOwner", "BUSINESSOWNER" },
-                    { "f1bbb3a2-a96e-49fa-aa72-a83fb715d5de", null, "Default", "DEFAULT" }
+                    { "401123cf-bd80-407d-b8cb-65a66c1cbc1b", "b2630af7-1b08-489a-aee9-a237469f9034", "ServiceProvider", "SERVICEPROVIDER" },
+                    { "73f6b9a0-a4cf-4bc9-a95e-a7746aeee492", "14e69019-a57b-403d-a572-31e74ddb188a", "Default", "DEFAULT" },
+                    { "9ebb051c-64b3-419f-8dbc-1c31910eae8a", "e81bc523-de81-452e-b0d6-75d526fb2998", "BusinssOwner", "BUSINSSOWNER" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -227,6 +241,9 @@ namespace BNS360.Reposatory.Data.Identity.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUserTokens");
+
+            migrationBuilder.DropTable(
+                name: "Review");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");

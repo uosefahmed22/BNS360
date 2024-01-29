@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 
 namespace BNS360.Core.Errors
 {
-    public class ApiValidationErrorResponse : ApiResponse
+    public class ApiValidationResponse : ApiResponse
     {
-        public Dictionary<string,List<string>?>? Errors;
-
-        public ApiValidationErrorResponse(int statusCode, string? errorMessage = null
-            , Dictionary<string, List<string>?>? errors = null)
-            : base(statusCode, errorMessage)
+        public ApiValidationResponse(Dictionary<string, List<string>> errors)
         {
+            Errors = errors;
         }
+
+        public Dictionary<string, List<string>> Errors { get; set; }
+
     }
 }

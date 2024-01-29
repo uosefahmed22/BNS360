@@ -1,42 +1,63 @@
-﻿using BNS360.Core.Errors;
+﻿using BNS360.Core.Abstractions;
+using BNS360.Core.Errors;
 using BNS360.Core.Helpers.Settings;
+using BNS360.Core.Services.AppBusniss;
 using BNS360.Core.Services.Authentication;
 using BNS360.Core.Services.Shared;
+using BNS360.Reposatory.Data.AppBusniss;
 using BNS360.Reposatory.Repositories.Authentication;
+using BNS360.Reposatory.Repositories.Repositories;
 using BNS360.Reposatory.Repositories.Shared;
 using MailKit;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace BNS360.Api.Extentions
 {
     public static class ApplictionServiceExtention
     {
-        public static IServiceCollection AddAplictionService(this IServiceCollection service)
+        public static IServiceCollection AddAplictionService(this IServiceCollection services)
         {
-            service.AddControllers()
-                .ConfigureApiBehaviorOptions(options =>
-                {
-                    options.InvalidModelStateResponseFactory = context =>
-                    {
-                        var errors = context.ModelState
-                            .Where(entry => entry.Value!.Errors.Any())
-                            .ToDictionary(
-                                kvp => kvp.Key,
-                                kvp => kvp.Value?.Errors.Select(e => e.ErrorMessage).ToList()
-                            );
+            var provider = services.BuildServiceProvider();  
+            var config = provider.GetService<IConfiguration>();
 
-                        return new BadRequestObjectResult(new ApiValidationErrorResponse(400, null, errors));
-                    };
-                });
+            services.AddControllers().ConfigureApiBehaviorOptions(options =>
+
+            options.InvalidModelStateResponseFactory = context =>
+            {
+                var errors = context.ModelState.Where(e => e.Value is not null && e.Value.Errors.Any())
+                .ToDictionary
+                (
+                    e => e.Key,
+                    e => e.Value!.Errors.Select(error => error.ErrorMessage).ToList()
+                );
+                return new BadRequestObjectResult(new ApiValidationResponse(errors).Errors);
+            }
+            );
 
 
-            service.AddSingleton<IJwtGenerator, JwtGenerator>();
-            service.AddScoped<IOtpService, OtpService>();
-            service.AddScoped<IEmailService, EmailService>();
-            service.AddScoped<IAuthService, AuthService>();
-            service.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-            return service;
+
+
+
+            services.AddDbContext<AppBusnissDbContext>(options =>
+              options.UseSqlServer(
+                  config?.GetConnectionString("BusnissDbConnection"),
+                  sqlServerOptionsAction: sqlOptions =>
+                  {
+                      sqlOptions.EnableRetryOnFailure();
+                  })
+              );
+            services.AddScoped<IReviewService,ReviewService>();
+            services.AddScoped<IBusnissRepository,BusnissRepository>();
+            services.AddSingleton<IJwtGenerator, JwtGenerator>();
+            services.AddScoped<IOtpService, OtpService>();
+            services.AddScoped<IEmailService, EmailService>();
+            services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+            return services;
 
         }
     }

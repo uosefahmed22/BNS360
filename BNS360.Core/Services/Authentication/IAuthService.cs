@@ -8,8 +8,8 @@ namespace BNS360.Core.Services.Authentication
     public interface IAuthService
     {
         Task<ApiResponse> Register(RegisterationDto dto, Func<string, string, string> generateCallBackUrl);
-        Task<ApiResponse> Login(LoginRequest dto);
-        Task<bool> ConfirmUserEmailAsync(string userId, string emailConfirmationToken);
+        Task<ApiResponse> LoginAsync(LoginRequest dto);
+        Task<bool> ConfirmUserEmailAsync(string userId, string token);
         Task<ApiResponse> ForgetPassword(string email);
         ApiResponse VerfiyOtp(VerfiyOtp dto);
         Task<ApiResponse> ResetPasswordAsync(ResetPassword dto);

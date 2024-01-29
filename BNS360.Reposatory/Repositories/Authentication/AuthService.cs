@@ -37,13 +37,12 @@ namespace BNS360.Reposatory.Repositories.Authentication
             var user = await _userManager.FindByEmailAsync(dto.Email);
 
             if (user is not null)
-                return new ApiResponse(404, "user already exists");
+                return new ApiResponse(409, "user already exists");
 
             user = new AppUser
             {
                 Name = dto.Name,
                 Email = dto.Email,
-                PhoneNumber = dto.PhoneNumber,
                 EmailConfirmed = false,
                 UserName = dto.Email,
             };
@@ -61,9 +60,9 @@ namespace BNS360.Reposatory.Repositories.Authentication
 
             string role = dto.UserType switch
             {
-                UserType.Default => "Default",
-                UserType.BusinssOwner => "BusinssOwner",
-                UserType.ServiceProvider => "ServiceProvider",
+                UserType.Default => nameof(UserType.Default),
+                UserType.BusinssOwner => nameof(UserType.BusinssOwner),
+                UserType.ServiceProvider => nameof(UserType.ServiceProvider),
                 _ => throw new Exception("Role not defined for"),
             };
 
@@ -82,13 +81,13 @@ namespace BNS360.Reposatory.Repositories.Authentication
             return new ApiResponse(200);
         }
 
-        public async Task<bool> ConfirmUserEmailAsync(string userId, string emailConfirmationToken)
+        public async Task<bool> ConfirmUserEmailAsync(string userId, string token)
         {
             var user = await _userManager.FindByIdAsync(userId);
 
             ItemNotFoundException.ThrowIfNull(user, nameof(user));
 
-            var confirmed = await _userManager.ConfirmEmailAsync(user, emailConfirmationToken);
+            var confirmed = await _userManager.ConfirmEmailAsync(user, token);
 
             if (confirmed.Succeeded)
                 return true;
@@ -96,7 +95,7 @@ namespace BNS360.Reposatory.Repositories.Authentication
             return false;
         }
 
-        public async Task<ApiResponse> Login(LoginRequest dto)
+        public async Task<ApiResponse> LoginAsync(LoginRequest dto)
         {
             var user = await _userManager.FindByEmailAsync(dto.Email);
 
@@ -105,16 +104,17 @@ namespace BNS360.Reposatory.Repositories.Authentication
                 return new ApiResponse(400, $"email or password might be wrong");
 
             if (!user.EmailConfirmed)
-                return new ApiResponse() { ErrorMessage = "Email Not Confirmed" };
+                return new ApiResponse(409) { Message = "Email Not Confirmed" };
+
+            var roles = await _userManager.GetRolesAsync(user);
 
             return new LoginResponse()
-            {
+            { 
+                StatusCode = 200,
                 DisplayName = user.Name,
                 Email = user.Email!,
-                JwtToken = _jwtGenerator.GenerateJwt(user)
+                JwtToken = _jwtGenerator.GenerateJwt(user,roles.First())
             };
-
-
         }
 
         public async Task<ApiResponse> ForgetPassword(string email)
@@ -131,7 +131,7 @@ namespace BNS360.Reposatory.Repositories.Authentication
 
             return new ApiResponse()
             {
-                ErrorMessage = $"*****{otp.Substring(otp.Length-1)}"
+                Message = email
             };
 
         }

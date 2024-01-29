@@ -17,7 +17,9 @@ namespace BNS360.Reposatory.Repositories.Shared
             _mailSettings = options.CurrentValue;
         }
 
-        public async Task SendEmailAsync(string toEmail, string subject, string body)
+        public async Task SendEmailAsync(string toEmail,
+            string subject, string body,
+            CancellationToken cancellation = default)
         {
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress(_mailSettings.DisplayedName, _mailSettings.Email));
@@ -32,10 +34,10 @@ namespace BNS360.Reposatory.Repositories.Shared
             using (var client = new SmtpClient())
             {
                 await client.ConnectAsync(_mailSettings.SmtpServer,_mailSettings.Port,
-                    SecureSocketOptions.StartTls);
-                await client.AuthenticateAsync(_mailSettings.Email, _mailSettings.Password);
-                await client.SendAsync(message);
-                await client.DisconnectAsync(true);
+                    SecureSocketOptions.StartTls,cancellation);
+                await client.AuthenticateAsync(_mailSettings.Email, _mailSettings.Password,cancellation);
+                await client.SendAsync(message,cancellation);
+                await client.DisconnectAsync(true, cancellation);
             }
         }
     }

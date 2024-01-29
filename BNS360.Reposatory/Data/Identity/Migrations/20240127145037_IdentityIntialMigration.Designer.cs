@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BNS360.Reposatory.Data.Identity.Migrations
 {
     [DbContext(typeof(BNS360IdentityDbContext))]
-    [Migration("20240118072019_IdentityInitialCreate")]
-    partial class IdentityInitialCreate
+    [Migration("20240127145037_IdentityIntialMigration")]
+    partial class IdentityIntialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,26 @@ namespace BNS360.Reposatory.Data.Identity.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("BNS360.Core.Entities.Review", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BusnissId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Comment")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<float>("Rate")
+                        .HasColumnType("real");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Review");
+                });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
@@ -54,19 +74,22 @@ namespace BNS360.Reposatory.Data.Identity.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "f1bbb3a2-a96e-49fa-aa72-a83fb715d5de",
+                            Id = "73f6b9a0-a4cf-4bc9-a95e-a7746aeee492",
+                            ConcurrencyStamp = "14e69019-a57b-403d-a572-31e74ddb188a",
                             Name = "Default",
                             NormalizedName = "DEFAULT"
                         },
                         new
                         {
-                            Id = "9cd90089-cbbe-4a54-b876-bed0fc04a0cb",
-                            Name = "BusinessOwner",
-                            NormalizedName = "BUSINESSOWNER"
+                            Id = "9ebb051c-64b3-419f-8dbc-1c31910eae8a",
+                            ConcurrencyStamp = "e81bc523-de81-452e-b0d6-75d526fb2998",
+                            Name = "BusinssOwner",
+                            NormalizedName = "BUSINSSOWNER"
                         },
                         new
                         {
-                            Id = "4680d326-1ce4-46f8-83d4-d6f2ab7e35e0",
+                            Id = "401123cf-bd80-407d-b8cb-65a66c1cbc1b",
+                            ConcurrencyStamp = "b2630af7-1b08-489a-aee9-a237469f9034",
                             Name = "ServiceProvider",
                             NormalizedName = "SERVICEPROVIDER"
                         });

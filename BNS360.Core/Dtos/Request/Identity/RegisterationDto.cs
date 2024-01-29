@@ -13,8 +13,6 @@ namespace BNS360.Core.Dtos.Request.Identity
         [MinLength(8 , ErrorMessage = "Min allawed Length is 8 characters")]
         public required string Password { get; set; }
 
-        [RegularExpression(@"^01[0125][0-9]{8}$", ErrorMessage = "Invalid phone number format. Please enter a valid Egyptian phone number.")]
-        public string? PhoneNumber { get; set; }
         [EnumDataType(typeof(UserType),ErrorMessage = "only 0 ,1 and 2 allawed")]
         public UserType UserType { get; set; }  
     }

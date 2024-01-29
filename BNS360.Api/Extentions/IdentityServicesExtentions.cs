@@ -36,23 +36,22 @@ namespace BNS360.Api.Extentions
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-            }
-)           .AddJwtBearer(options =>
-{
+            }).AddJwtBearer(options =>
+            {
             options.SaveToken = true;
             options.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidIssuer = jwt.Issuer,
                 ValidAudience = jwt.Audience,
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
-                        jwt.Key ?? throw new InvalidOperationException("secret key is null")))
+                        jwt.Key ?? throw new InvalidOperationException("secret key is null"))),
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.Zero,
+                
 
             };
 });
-
             return services;
-
-
         }
     }
 }

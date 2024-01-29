@@ -1,19 +1,11 @@
 using BNS360.Api.Extentions;
 using BNS360.Api.Midlewares;
-using BNS360.Core.Entities.Identity;
-using BNS360.Core.Errors;
 using BNS360.Core.Helpers.Settings;
-using BNS360.Core.Services;
+using BNS360.Reposatory.Data.AppBusniss;
+using BNS360.Reposatory.Data.AppBusniss.DataSeeding;
 using BNS360.Reposatory.Data.Identity;
-using BNS360.Reposatory.Repositories;
-using MailKit;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,25 +25,27 @@ var app = builder.Build();
 
 #region update udmatecaly
 
-using var scope = app.Services.CreateScope();
-var Services = scope.ServiceProvider;
+//using var scope = app.Services.CreateScope();
+//var Services = scope.ServiceProvider;
 
-var loggerfactory = Services.GetRequiredService<ILoggerFactory>();
-try
-{
-    var identityDbContext = Services.GetRequiredService<BNS360IdentityDbContext>();
-    await identityDbContext.Database.MigrateAsync();
-
-}
-catch (Exception ex)
-{
-    var logger = loggerfactory.CreateLogger<Program>();
-    logger.LogError(ex, "An Error Occured During Appling The Migrations");
-}
+//var loggerfactory = Services.GetRequiredService<ILoggerFactory>();
+//try
+//{
+//    //var identityContext = Services.GetRequiredService<BNS360IdentityDbContext>();
+//    //await identityContext.Database.MigrateAsync();
+//    var context = Services.GetRequiredService<AppBusnissDbContext>();
+//    await context.Database.EnsureDeletedAsync();
+//    await context.Database.MigrateAsync();
+//    await SeedData.Seed(context);
+//}
+//catch (Exception ex)
+//{
+//    var logger = loggerfactory.CreateLogger<Program>();
+//    logger.LogError(ex, "An Error Occured During Appling The Migrations");
+//}
 #endregion
 #region configure middlewares
 
-app.UseMiddleware<ExeptionMiddleWares>();
 
 if (app.Environment.IsDevelopment())
 {
@@ -59,6 +53,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseStatusCodePagesWithReExecute("/errors/{0}");
+app.UseMiddleware<ExeptionMiddleWares>();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();

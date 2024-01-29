@@ -9,7 +9,7 @@ namespace BNS360.Core.Specifications
 {
     public class FindItemWithIdSpc<T> :BaseSpecification<T> where T : BaseEntity
     {
-        public FindItemWithIdSpc(int id, bool includeNavigationProps = false) 
+        public FindItemWithIdSpc(Guid id, bool includeNavigationProps = false) 
         {
             Criteria = Item => Item.Id == id;
             IncludeNavigationProps = includeNavigationProps;

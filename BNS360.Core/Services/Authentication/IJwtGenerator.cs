@@ -1,4 +1,5 @@
 ﻿using BNS360.Core.Entities.Identity;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,6 @@ namespace BNS360.Core.Services.Authentication
 {
     public interface IJwtGenerator
     {
-       string GenerateJwt(AppUser user);
+       string GenerateJwt(AppUser user,string role);
     }
 }

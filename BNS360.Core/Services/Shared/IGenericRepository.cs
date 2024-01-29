@@ -11,7 +11,8 @@ namespace BNS360.Core.Services.Shared
 {
     public interface IGenericRepository<T> where T : BaseEntity
     {
-        //Task<T?> GetItem(Expression<Func<T,object>> critera);
-        Task<T?> FindItemWithId(int id, bool includeNavigationPros = false);
+       
+        Task<T?> FindItemWithIdAsync(Guid id, bool includeNavigationPros = default);
+        Task<IReadOnlyList<T>> GetAllAsync();
     }
 }

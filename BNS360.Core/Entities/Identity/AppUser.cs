@@ -7,5 +7,7 @@ namespace BNS360.Core.Entities.Identity
     {
         [Required]
         public required string Name { get; set; }
+        public string? profilePictureUrl { get; set; }
+
     }
 }

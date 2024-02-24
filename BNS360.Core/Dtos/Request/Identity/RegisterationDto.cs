@@ -13,7 +13,7 @@ namespace BNS360.Core.Dtos.Request.Identity
         [MinLength(8 , ErrorMessage = "Min allawed Length is 8 characters")]
         public required string Password { get; set; }
 
-        [EnumDataType(typeof(UserType),ErrorMessage = "only 0 ,1 and 2 allawed")]
+        [EnumDataType(typeof(UserType),ErrorMessage = "only 0 , 1 and 2 allawed")]
         public UserType UserType { get; set; }  
     }
 }

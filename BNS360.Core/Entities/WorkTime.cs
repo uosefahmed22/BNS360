@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BNS360.Core.Dtos.Request;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -16,5 +17,21 @@ namespace BNS360.Core.Entities
         [Required]
         [ForeignKey("BusnissId")]
         public Guid BusnissId { get; set; }
+
+        public static IEnumerable<WorkTime> SetBusnissWorkTime(List<WorkTimeDto> request, Guid busnissId)
+        {
+            foreach (WorkTimeDto dto in request) 
+            {
+                yield return new WorkTime
+                {
+                    Day = dto.Day,
+                    Start = dto.Strart,
+                    End = dto.Strart,
+                    BusnissId = busnissId
+                };
+            }
+
+        }
+        
     }
 }

@@ -13,5 +13,10 @@ namespace BNS360.Core.Services.Shared
         Expression<Func<T, bool>>? Criteria { get; }
         
         List<Expression<Func<T, object>>>? NavigationProperties { get; }
+
+        Expression<Func<T, object>>? OrderByExpression { get; }
+
+        int PageIndex { get; }
+        int PageSize { get; }
     }
 }

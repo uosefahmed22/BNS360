@@ -12,7 +12,7 @@ namespace BNS360.Reposatory.Data.config
             builder.Property(l => l.Latitude).HasColumnType("decimal").IsRequired();
             builder.Property(l => l.Longitude).HasColumnType("decimal").IsRequired();
         }
-    }    
+    }      
 
 }
 

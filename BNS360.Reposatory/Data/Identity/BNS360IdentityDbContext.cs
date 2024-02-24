@@ -1,4 +1,5 @@
 ﻿using BNS360.Core.Entities.Identity;
+using BNS360.Reposatory.Data.config;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -14,7 +15,7 @@ namespace BNS360.Reposatory.Data.Identity
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-            builder.ApplyConfigurationsFromAssembly(typeof(BNS360IdentityDbContext).Assembly);
+            builder.ApplyConfiguration(new RoleManagerConfig());
         }
     }
 }

@@ -28,15 +28,24 @@ namespace BNS360.Reposatory.data.appbusniss.migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("About")
+                    b.Property<string>("AboutAR")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AboutENG")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AlbumUrl")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("CategoryId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Name")
+                    b.Property<string>("NameAR")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NameENG")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ProfilePictureUrl")
@@ -104,6 +113,19 @@ namespace BNS360.Reposatory.data.appbusniss.migrations
                     b.ToTable("Contact");
                 });
 
+            modelBuilder.Entity("BNS360.Core.Entities.FavoriteBusniss", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BusnissId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("UserId", "BusnissId");
+
+                    b.ToTable("FavoriteBusnisses");
+                });
+
             modelBuilder.Entity("BNS360.Core.Entities.Location", b =>
                 {
                     b.Property<Guid>("Id")
@@ -143,10 +165,13 @@ namespace BNS360.Reposatory.data.appbusniss.migrations
                     b.Property<string>("Comment")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<float>("Rate")
-                        .HasColumnType("real");
+                    b.Property<DateTime?>("LastModefied")
+                        .HasColumnType("datetime2");
 
-                    b.Property<Guid?>("UserId")
+                    b.Property<int>("Rate")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
@@ -181,55 +206,15 @@ namespace BNS360.Reposatory.data.appbusniss.migrations
                     b.ToTable("WorkTime");
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NormalizedName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("IdentityRole");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "2b414bc4-e7f4-417b-9fb7-899f28f6caec",
-                            ConcurrencyStamp = "35bebd76-1e74-499e-a242-8a56cce8262a",
-                            Name = "Default",
-                            NormalizedName = "DEFAULT"
-                        },
-                        new
-                        {
-                            Id = "8a6290af-e192-4def-b22d-bcc63ad0855e",
-                            ConcurrencyStamp = "87b3a328-b0b0-4037-af16-d66f6f3d2338",
-                            Name = "BusinssOwner",
-                            NormalizedName = "BUSINSSOWNER"
-                        },
-                        new
-                        {
-                            Id = "31940441-c040-43b7-9551-5ad4a033f9d7",
-                            ConcurrencyStamp = "80d84e4e-de5c-413f-bf10-776b4d59eef0",
-                            Name = "ServiceProvider",
-                            NormalizedName = "SERVICEPROVIDER"
-                        });
-                });
-
             modelBuilder.Entity("BNS360.Core.Entities.Busniss", b =>
                 {
-                    b.HasOne("BNS360.Core.Entities.Category", null)
+                    b.HasOne("BNS360.Core.Entities.Category", "Category")
                         .WithMany("Busnisses")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Category");
                 });
 
             modelBuilder.Entity("BNS360.Core.Entities.Contact", b =>
@@ -263,9 +248,7 @@ namespace BNS360.Reposatory.data.appbusniss.migrations
                 {
                     b.HasOne("BNS360.Core.Entities.Busniss", null)
                         .WithMany("WorkTime")
-                        .HasForeignKey("BusnissId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("BusnissId");
                 });
 
             modelBuilder.Entity("BNS360.Core.Entities.Busniss", b =>

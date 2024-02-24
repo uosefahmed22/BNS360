@@ -22,26 +22,6 @@ namespace BNS360.Reposatory.Data.Identity.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("BNS360.Core.Entities.Review", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("BusnissId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Comment")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<float>("Rate")
-                        .HasColumnType("real");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Review");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
@@ -71,22 +51,22 @@ namespace BNS360.Reposatory.Data.Identity.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "73f6b9a0-a4cf-4bc9-a95e-a7746aeee492",
-                            ConcurrencyStamp = "14e69019-a57b-403d-a572-31e74ddb188a",
+                            Id = "1ee306e5-fdec-4771-9ad3-86d5f076d0b7",
+                            ConcurrencyStamp = "397b115b-c179-4ebe-a188-f662d025ac6e",
                             Name = "Default",
                             NormalizedName = "DEFAULT"
                         },
                         new
                         {
-                            Id = "9ebb051c-64b3-419f-8dbc-1c31910eae8a",
-                            ConcurrencyStamp = "e81bc523-de81-452e-b0d6-75d526fb2998",
+                            Id = "c812f03d-ba31-4e6f-894f-79b92c8a2074",
+                            ConcurrencyStamp = "17a2e694-966b-47a6-a83a-1391fe7e2592",
                             Name = "BusinssOwner",
                             NormalizedName = "BUSINSSOWNER"
                         },
                         new
                         {
-                            Id = "401123cf-bd80-407d-b8cb-65a66c1cbc1b",
-                            ConcurrencyStamp = "b2630af7-1b08-489a-aee9-a237469f9034",
+                            Id = "1d450859-5556-4f59-8c4b-4a5337b0ba45",
+                            ConcurrencyStamp = "b9d51b05-0c9d-407c-98c6-80cb9dd69833",
                             Name = "ServiceProvider",
                             NormalizedName = "SERVICEPROVIDER"
                         });
@@ -278,6 +258,9 @@ namespace BNS360.Reposatory.Data.Identity.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("profilePictureUrl")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasDiscriminator().HasValue("AppUser");

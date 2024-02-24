@@ -1,4 +1,6 @@
 ﻿
+using System.Text.Json.Serialization;
+
 namespace BNS360.Core.Errors
 {
     public class ApiExceptionResponse : ApiResponse
@@ -7,7 +9,7 @@ namespace BNS360.Core.Errors
         {
             Details = details;
         }
-
+        [JsonPropertyOrder(0)]
         public String? Details { get; set; }
 
 

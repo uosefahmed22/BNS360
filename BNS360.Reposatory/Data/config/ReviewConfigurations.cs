@@ -8,7 +8,6 @@ namespace BNS360.Reposatory.Data.config
     {
         public void Configure(EntityTypeBuilder<Review> builder)
         {
-            builder.Property(r => r.UserId).IsRequired(false);
         }
     }
 }

@@ -19,16 +19,17 @@ namespace BNS360.Reposatory.Repositories.Authentication
         private readonly IOtpService _otpService;
         private readonly IMemoryCache _cache;
         private readonly IJwtGenerator _jwtGenerator;
-
-        public AuthService(UserManager<AppUser> userManager, 
-            IEmailService emailService, IOtpService otpService, 
-            IMemoryCache cache, IJwtGenerator jwtGenerator)
+        private readonly IFileService _fileService;
+        public AuthService(UserManager<AppUser> userManager,
+            IEmailService emailService, IOtpService otpService,
+            IMemoryCache cache, IJwtGenerator jwtGenerator, IFileService fileService)
         {
             _userManager = userManager;
             _emailService = emailService;
             _otpService = otpService;
             _cache = cache;
             _jwtGenerator = jwtGenerator;
+            _fileService = fileService;
         }
 
 
@@ -109,14 +110,15 @@ namespace BNS360.Reposatory.Repositories.Authentication
             var roles = await _userManager.GetRolesAsync(user);
 
             return new LoginResponse()
-            { 
+            {
                 StatusCode = 200,
                 DisplayName = user.Name,
+                ProfilePicture = _fileService.GetAbsoluteFilePath(user.profilePictureUrl),
                 Email = user.Email!,
                 JwtToken = _jwtGenerator.GenerateJwt(user,roles.First())
             };
         }
-
+    
         public async Task<ApiResponse> ForgetPassword(string email)
         {
             var user = await _userManager.Users.Where(u => u.Email == email)

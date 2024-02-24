@@ -13,6 +13,13 @@ namespace BNS360.Reposatory.Repositories.Shared
             {
                 query = query.Where(spc.Criteria);
             }
+            if (spc.OrderByExpression is not null)
+                query = query.OrderBy(spc.OrderByExpression);
+
+            if(spc.PageIndex >= 0 && spc.PageSize != 0)
+            {
+                query =  query.Skip(spc.PageIndex * spc.PageSize).Take(spc.PageSize);
+            }
             return query;
         }
     }

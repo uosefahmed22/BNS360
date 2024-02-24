@@ -6,10 +6,17 @@ namespace BNS360.Core.Specifications
 {
     public class BaseSpecification<T> : ISpecification<T> where T : BaseEntity
     {
-        public Expression<Func<T, bool>>? Criteria { get; set; }
+        public Expression<Func<T, bool>>? Criteria { get; protected set; }
 
         public List<Expression<Func<T, object>>>? NavigationProperties
             => IncludeNavigationProps ? ExploreNavigationPros() : default;
+
+        public int PageIndex {  get; protected set; }
+
+        public int PageSize {  get; protected set; }
+
+        public Expression<Func<T, object>>? OrderByExpression {  get; protected set; }
+
         protected bool IncludeNavigationProps { private get; set; }
 
         private List<Expression<Func<T, object>>>? ExploreNavigationPros()

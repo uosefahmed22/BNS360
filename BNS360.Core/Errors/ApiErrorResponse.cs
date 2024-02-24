@@ -8,7 +8,7 @@ namespace BNS360.Core.Errors
         [JsonIgnore]
         public int StatusCode { get; set; }
 
-        [JsonIgnore(Condition =JsonIgnoreCondition.WhenWritingNull)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? Message { get; set; }
 
         public ApiResponse()
@@ -32,6 +32,7 @@ namespace BNS360.Core.Errors
                 404 => "Not Found: The requested resource was not found.",
                 405 => "Method Not Allowed: The HTTP method is not allowed for the requested resource.",
                 408 => "Request Timeout: The server timed out waiting for the request.",
+                409 => "Conflict: The request could not be completed due to a conflict with the current state of the target resource.",
                 429 => "Too Many Requests: The user has sent too many requests in a given amount of time.",
                 500 => "Internal Server Error: Something went wrong on the server.",
                 502 => "Bad Gateway: The server received an invalid response from the upstream server.",

@@ -4,16 +4,19 @@ using BNS360.Reposatory.Data.AppBusniss;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace BNS360.Reposatory.data.appbusniss.migrations
+namespace BNS360.Reposatory.data.appbusniss.Migrations
 {
     [DbContext(typeof(AppBusnissDbContext))]
-    partial class AppBusnissDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240227111258_Updated")]
+    partial class Updated
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

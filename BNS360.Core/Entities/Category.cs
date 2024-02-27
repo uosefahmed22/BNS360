@@ -7,6 +7,6 @@ namespace BNS360.Core.Entities
         public required string Name { get; set; }
         public required string PictureUrl { get; set; }
         [JsonIgnore]
-        public ICollection<Busniss>? Busnisses { get; set; }
+        public ICollection<Business>? Busnisses { get; set; }
     }
 }

@@ -22,7 +22,7 @@ public class SeedData
         {
             var categoryIds = await context.Categories.Select(c => c.Id).ToListAsync();
               
-            var busniss = new Busniss() { AboutAR = "nice place", NameAR = "kfc", CategoryId = categoryIds[0], UserId = Guid.NewGuid() };
+            var busniss = new Business() { AboutAR = "nice place", NameAR = "kfc", CategoryId = categoryIds[0], UserId = Guid.NewGuid() };
 
             busniss.Reviews = new List<Review>(){
                 new Review() { BusnissId = busniss.Id, Rate = 3, Comment = "greate place" },
@@ -36,7 +36,7 @@ public class SeedData
                 Longitude = 35.25m,
                 Address = "this streat"
             };
-            var busniss2 = new Busniss() { AboutAR = "nice place", NameAR = "kfc", CategoryId = categoryIds[1], UserId = Guid.NewGuid() };
+            var busniss2 = new Business() { AboutAR = "nice place", NameAR = "kfc", CategoryId = categoryIds[1], UserId = Guid.NewGuid() };
             busniss2.Reviews = new List<Review>(){
                 new Review() { BusnissId = busniss2.Id, Rate = 3, Comment = "greate place" },
                 new Review() { BusnissId = busniss2.Id, Rate = 4, Comment = "greate place" },
@@ -48,7 +48,7 @@ public class SeedData
                 Longitude = 35.25m,
                 Address = "this streat"
             };
-            var busniss3 = new Busniss() { AboutAR = "nice place", NameAR = "kfc", CategoryId = categoryIds[1], UserId = Guid.NewGuid() };
+            var busniss3 = new Business() { AboutAR = "nice place", NameAR = "kfc", CategoryId = categoryIds[1], UserId = Guid.NewGuid() };
             busniss3.Location = new()
             {
                 Latitude = 60.14m,

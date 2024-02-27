@@ -14,7 +14,7 @@ namespace BNS360.Reposatory.Data.AppBusniss
             
         }
 
-        public DbSet<Busniss> Busnisses { get; set; }
+        public DbSet<Business> Busnisses { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Review> Reviews { get; set; }  
         public DbSet<WorkTime> WorkTime { get; set; }

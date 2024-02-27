@@ -6,7 +6,7 @@ namespace BNS360.Core.Dtos.Response;
 public class PagenationResponse<TResult> : ApiResponse
 {
     public PagenationResponse()
-        : base(StatusCodes.Status200OK)
+        : base(200)
     {
             
     }

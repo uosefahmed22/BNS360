@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BNS360.Core.Entities;
 
-public class Busniss : MainEntity
+public class Business : MainEntity
 {
     public required string NameAR { get; set; }
     public string? NameENG { get; set; }

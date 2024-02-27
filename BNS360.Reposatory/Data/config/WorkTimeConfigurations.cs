@@ -8,7 +8,7 @@ namespace BNS360.Reposatory.Data.config
     {
         public void Configure(EntityTypeBuilder<WorkTime> builder)
         {
-            builder.HasOne<Busniss>()
+            builder.HasOne<Business>()
                 .WithMany(b => b.WorkTime)
                 .HasForeignKey(wt => wt.BusnissId)
                 .IsRequired(false);

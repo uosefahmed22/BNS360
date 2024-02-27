@@ -46,7 +46,7 @@ namespace BNS360.Reposatory.Repositories.Shared
 
         public IQueryable<ReviewSummary> GetReviewSummaryAsQueryAsync<T>(Guid id) where T : MainEntity
         {
-            if (typeof(T) == typeof(Busniss))
+            if (typeof(T) == typeof(Business))
             {
                 lock(_locker)
                 {
@@ -71,9 +71,9 @@ namespace BNS360.Reposatory.Repositories.Shared
 
         public async Task<ReviewSummary> GetReviewSummaryAsync<T>(Guid id) where T : MainEntity
         {
-            if (typeof(T) == typeof(Busniss))
+            if (typeof(T) == typeof(Business))
             {
-                var reviewSummary = await GetReviewSummaryAsQueryAsync<Busniss>(id)
+                var reviewSummary = await GetReviewSummaryAsQueryAsync<Business>(id)
                     .FirstOrDefaultAsync();
                 return reviewSummary ?? new ReviewSummary(0, 0);
             }

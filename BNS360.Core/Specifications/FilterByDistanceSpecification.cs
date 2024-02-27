@@ -4,7 +4,7 @@ using BNS360.Core.Services.Shared;
 
 namespace BNS360.Core.Specifications
 {
-    public class FilterByDistanceSpecification : BaseSpecification<Busniss>
+    public class FilterByDistanceSpecification : BaseSpecification<Business>
     {
         private readonly IDistanceService _distanceService;
         public FilterByDistanceSpecification(CurrentLocation currentLocation, int pageNumber, int size, IDistanceService distanceService)

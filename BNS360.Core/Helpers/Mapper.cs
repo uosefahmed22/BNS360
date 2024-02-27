@@ -7,7 +7,7 @@ namespace BNS360.Core.Helpers;
 public static class Mapper
 {
 
-    public static BusnissReponse MapToBusnissResponse(this Busniss? busniss,
+    public static BusnissReponse MapToBusnissResponse(this Business? busniss,
          IReviewService ReviewService,
          IFileService FileService)
     {

@@ -60,7 +60,7 @@ public class BusnissRepository
             return new ApiResponse(StatusCodes.Status404NotFound, $"Busniss With ID {Id} Was Not Found");
         }
 
-        var reviewsSummary = await _reviewService.GetReviewSummaryAsync<Busniss>(Id);
+        var reviewsSummary = await _reviewService.GetReviewSummaryAsync<Business>(Id);
 
         return new BusnissDetails
         {
@@ -109,11 +109,11 @@ public class BusnissRepository
 
     public async Task<ApiResponse> Paganate(int pageNumber, int pageSize, Guid categoryId)
     {
-        var spc = new GetPageSpecification<Busniss>(
+        var spc = new GetPageSpecification<Business>(
             pageNumber,
             pageSize,
             b => b.CategoryId == categoryId);
-        var items = await SpecificationEvaluator<Busniss>.
+        var items = await SpecificationEvaluator<Business>.
             Evaluate(_context.Busnisses.AsNoTracking().AsQueryable(), spc).Include(b => b.Reviews)
             .Select(busniss => busniss.MapToBusnissResponse(_reviewService, _fileService))
             .ToListAsync();
@@ -192,7 +192,7 @@ public class BusnissRepository
                 NameAR = b.NameAR,
                 DescriptionAR = b.AboutAR,
                 ProfilePictureUrl = _fileService.GetAbsoluteFilePath(b.ProfilePictureUrl),
-                ReviewSummary = await _reviewService.GetReviewSummaryAsync<Busniss>(b.Id),
+                ReviewSummary = await _reviewService.GetReviewSummaryAsync<Business>(b.Id),
                 Distance = Math.Round(_distanceService.FindDistance(location, b.Location!), 1)
             })
             .ToList();
@@ -215,7 +215,7 @@ public class BusnissRepository
             return new ApiResponse(StatusCodes.Status404NotFound, "Category Was Not Found");
         }
 
-        Expression<Func<Busniss, bool>> predicate = b => b.CategoryId == categoryId
+        Expression<Func<Business, bool>> predicate = b => b.CategoryId == categoryId
         && b.WorkTime.Any(wt => wt.Day == _dateTimeProvider.Now.DayOfWeek &&
             wt.Start <= _dateTimeProvider.CurrentTime &&
             wt.End > _dateTimeProvider.CurrentTime);
@@ -306,7 +306,7 @@ public class BusnissRepository
                 Message = $"CategoryID: {request.CategoryId} is InValid"
             };
         }
-        Busniss busniss = new()
+        Business busniss = new()
         {
             UserId = userId,
             NameAR = request.Name,

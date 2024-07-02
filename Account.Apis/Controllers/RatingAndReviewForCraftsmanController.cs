@@ -1,5 +1,6 @@
 ﻿using Account.Core.Dtos.RatingAndReviewDto;
 using Account.Core.IServices.Content;
+using Account.Reposatory.Services.Content;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -36,12 +37,18 @@ namespace Account.Apis.Controllers
             return StatusCode(response.StatusCode, response);
         }
 
-
         [HttpGet("summary/{craftsmanId}")]
         public async Task<IActionResult> GetReviewsAndRatingsSummary(int craftsmanId)
         {
             var summary = await _serviceForRatingAndReviewsForCraftsmen.GetReviewsAndRatingsForCraftsmanAsync(craftsmanId);
             return Ok(summary);
+        }
+
+        [HttpDelete("review/{reviewAndRatingId}")]
+        public async Task<IActionResult> RemoveReviewForAdminById(int reviewAndRatingId)
+        {
+            var response = await _serviceForRatingAndReviewsForCraftsmen.RemoveReviewForAdminAsync(reviewAndRatingId);
+            return StatusCode(response.StatusCode, response);
         }
     }
 }

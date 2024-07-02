@@ -15,5 +15,6 @@ namespace Account.Core.IServices.Content
         Task<ApiResponse> AddAsync(RatingAndReviewModelForBusinessDto savedModel);
         Task<ApiResponse> RemoveAsync(string userId, int businessId, int reviewAndRatingId);
         Task<ReviewAndRatingSummaryResponse> GetReviewsAndRatingsForBusinessWithDetailsAsync(int businessId);
+        Task<ApiResponse> RemoveReviewForAdminAsync(int reviewAndRatingId);
     }
 }

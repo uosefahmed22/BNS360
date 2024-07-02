@@ -157,5 +157,26 @@ namespace Account.Reposatory.Services.Content
                 throw;
             }
         }
+        public async Task<ApiResponse> RemoveReviewForAdminAsync(int reviewAndRatingId)
+        {
+            try
+            {
+                var reviewAndRating = await _context.ratingAndReviewModelForBusinesses
+                    .FirstOrDefaultAsync(r => r.Id == reviewAndRatingId);
+
+                if (reviewAndRating == null)
+                    return new ApiResponse(404, "Record not found.");
+
+                _context.ratingAndReviewModelForBusinesses.Remove(reviewAndRating);
+                await _context.SaveChangesAsync();
+
+                return new ApiResponse(200, "Record removed successfully.");
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse(400, $"Failed to remove record: {ex.Message}");
+            }
+        }
+
     }
 }

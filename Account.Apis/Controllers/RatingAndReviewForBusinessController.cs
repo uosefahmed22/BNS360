@@ -42,5 +42,12 @@ namespace Account.Apis.Controllers
             var summary = await _serviceForRatingAndReviewsForBusiness.GetReviewsAndRatingsForBusinessWithDetailsAsync(businessId);
             return Ok(summary);
         }
+
+        [HttpDelete("review/{reviewAndRatingId}")]
+        public async Task<IActionResult> RemoveReviewForAdminById(int reviewAndRatingId)
+        {
+            var response = await _serviceForRatingAndReviewsForBusiness.RemoveReviewForAdminAsync(reviewAndRatingId);
+            return StatusCode(response.StatusCode, response);
+        }
     }
 }

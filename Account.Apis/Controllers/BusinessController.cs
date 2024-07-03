@@ -250,7 +250,7 @@ namespace Account.Apis.Controllers
                 });
             }
         }
-
+        
         [HttpGet("{id}")]
         public async Task<IActionResult> GetBusiness(int id)
         {
@@ -261,7 +261,7 @@ namespace Account.Apis.Controllers
             }
             return Ok(business);
         }
-
+        
         [HttpGet("business-owner/{userId}")]
         public async Task<IActionResult> GetBusinessForBusinessOwnerAsync(string userId)
         {

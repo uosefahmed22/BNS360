@@ -14,7 +14,7 @@ namespace Account.Apis
 {
     public class Program
     {
-        public static async Task Main(string[] args)
+        public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -57,8 +57,8 @@ namespace Account.Apis
 
             #region Update automatically
             //// Create a service scope to resolve services
-             
-            
+
+
             //using var scope = app.Services.CreateScope();
             //var Services = scope.ServiceProvider;
 
@@ -97,35 +97,15 @@ namespace Account.Apis
                 app.UseSwaggerMiddlewares();
             }
             app.UseHttpsRedirection();
-
             app.UseStaticFiles();
-
-            try
-            {
-                var uploadsPath = Path.Combine(builder.Environment.ContentRootPath, "Uploads");
-                if (!Directory.Exists(uploadsPath))
-                {
-                    Directory.CreateDirectory(uploadsPath);
-                }
-
-                app.UseStaticFiles(new StaticFileOptions
-                {
-                    FileProvider = new PhysicalFileProvider(uploadsPath),
-                    RequestPath = "/resources"
-                });
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error setting up static files: {ex.Message}");
-                throw;
-            }
-
-
-            app.UseSwaggerMiddlewares();
+            app.UseRouting();
             app.UseCors("MyPolicy");
-            app.UseAuthorization();
+
             app.UseAuthentication();
+            app.UseAuthorization();
+
             app.MapControllers();
+
             #endregion
             app.Run();
         }

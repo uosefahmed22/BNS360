@@ -16,25 +16,27 @@ namespace Account.Apis.Extentions
     {
         public static IServiceCollection AddIdentityServices(this IServiceCollection services, IConfiguration configuration)
         {
-            // Add identity services with specified user and role classes
-            services.AddIdentity<AppUser, IdentityRole>(Options =>
+            services.AddIdentity<AppUser, IdentityRole>(options =>
             {
+                options.Password.RequireDigit = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequiredLength = 1;
+                options.Password.RequiredUniqueChars = 0;
             })
-            // Configure identity to use Entity Framework stores
             .AddEntityFrameworkStores<AppDBContext>()
-            .AddDefaultTokenProviders().AddRoles<IdentityRole>();
+            .AddDefaultTokenProviders()
+            .AddRoles<IdentityRole>();
 
-            // Add authentication services
-            services.AddAuthentication(Options =>
+            services.AddAuthentication(options =>
             {
-                // Set default authentication scheme to JWT bearer authentication
-                Options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                Options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             })
-            // Configure JWT bearer authentication
-            .AddJwtBearer(Options =>
+            .AddJwtBearer(options =>
             {
-                Options.TokenValidationParameters = new TokenValidationParameters()
+                options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,
                     ValidIssuer = configuration["JWT:ValidIssuer"],
@@ -46,23 +48,18 @@ namespace Account.Apis.Extentions
                 };
             });
 
-            services.AddDbContext<AppDBContext>(Options =>
+            services.AddDbContext<AppDBContext>(options =>
             {
-                Options.UseSqlServer(configuration.GetConnectionString("DefaultConnections")).EnableSensitiveDataLogging();
+                options.UseSqlServer(configuration.GetConnectionString("DefaultConnections")).EnableSensitiveDataLogging();
             });
 
-            // Register custom token service
-            services.AddScoped<IAccountService,AccountService>();
+            services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<IOtpService, OtpService>();
-            services.AddScoped<ITokenService,TokenService>();
+            services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IProfileService, ProfileService>();
 
-
-
-
-            // Add here any other injections.....
             return services;
         }
-
     }
+
 }

@@ -66,9 +66,8 @@ namespace Account.Reposatory.Services.Authentications
                 UserRole = (int)dto.UserRole,
                 EmailConfirmed = false
             };
-
+            //error here when adding password
             var Result = await _userManager.CreateAsync(user, dto.Password);
-
 
             if (!Result.Succeeded)
             {

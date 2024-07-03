@@ -1,12 +1,15 @@
 ﻿using Account.Apis.Errors;
+using Account.Apis.Helpers;
 using Account.Core.Dtos.Account;
 using Account.Core.Models.Account;
 using Account.Core.Services.Auth;
 using Account.services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 
 namespace Account.Apis.Controllers
 {
@@ -174,6 +177,20 @@ namespace Account.Apis.Controllers
             {
                 return StatusCode(result.StatusCode, result.Message);
             }
+        }
+
+        [Authorize]
+        [HttpGet("get-data")]
+        public IActionResult GetData()
+        {
+            var token = HttpContext.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var claims = TokenHelper.GetTokenClaims(token);
+
+            var email = claims[ClaimTypes.Email];
+            var role = claims[ClaimTypes.Role];
+            var displayName = claims[ClaimTypes.GivenName];
+
+            return Ok(new { Email = email, Role = role, DisplayName = displayName });
         }
         private string GenerateCallBackUrl(string token, string userId)
         {

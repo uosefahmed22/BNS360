@@ -20,6 +20,6 @@ namespace Account.Reposatory.Services.Authentications
         Task<ApiResponse> UpdateUserImageAsync(UpdateUserImageModel model);
         Task<List<JobModelDto>> GetMyPostsInJobs(string userId);
         Task<List<PropertyModelDTO>> GetMyPostsInProperties(string userId);
-
+        Task<ApiResponse> ChangeUserRoleAsync(ChangeUserRoleDto dto);
     }
 }

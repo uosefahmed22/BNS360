@@ -2,6 +2,7 @@
 using Account.Core.Dtos.Account;
 using Account.Core.Dtos.JobFolderDTO;
 using Account.Core.Dtos.PropertyFolderDto;
+using Account.Core.Enums.Auth;
 using Account.Core.Models.Account;
 using Account.Core.Services.Content;
 using Account.Reposatory.Data.Context;
@@ -164,5 +165,63 @@ namespace Account.Reposatory.Services.Authentications
                 return new ApiResponse(400, "Failed to update user name.");
             }
         }
+
+        public async Task<ApiResponse> ChangeUserRoleAsync(ChangeUserRoleDto dto)
+        {
+            var user = await _userManager.FindByIdAsync(dto.UserId);
+            if (user == null)
+            {
+                return new ApiResponse(404, "User not found.");
+            }
+
+            var currentRole = (UserRoleEnum)user.UserRole;
+            var currentRoleName = GetUserRoleName(currentRole);
+            if (currentRoleName != "User")
+            {
+                return new ApiResponse(400, "Only users with the 'User' role can change their role.");
+            }
+
+            var newRoleName = GetUserRoleName(dto.NewRole);
+            if (currentRoleName == newRoleName)
+            {
+                return new ApiResponse(400, "User already has this role.");
+            }
+
+            var removeResult = await _userManager.RemoveFromRoleAsync(user, currentRoleName);
+            if (!removeResult.Succeeded)
+            {
+                return new ApiResponse(400, "Failed to remove current role.");
+            }
+
+            var addResult = await _userManager.AddToRoleAsync(user, newRoleName);
+            if (!addResult.Succeeded)
+            {
+                return new ApiResponse(400, "Failed to add new role.");
+            }
+
+            user.UserRole = (int)dto.NewRole;
+            var updateResult = await _userManager.UpdateAsync(user);
+            if (!updateResult.Succeeded)
+            {
+                return new ApiResponse(400, "Failed to update user role.");
+            }
+
+            return new ApiResponse(200, "User role changed successfully.");
+        }
+
+        public static string GetUserRoleName(UserRoleEnum role)
+        {
+            return role switch
+            {
+                UserRoleEnum.User => "User",
+                UserRoleEnum.BussinesOwner => "BussinesOwner",
+                UserRoleEnum.ServiceProvider => "ServiceProvider",
+                UserRoleEnum.Admin => "Admin",
+                _ => "Unknown",
+            };
+        }
+
+
+
     }
 }

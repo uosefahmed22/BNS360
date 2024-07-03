@@ -75,5 +75,22 @@ namespace Account.Apis.Controllers
                 return StatusCode(500, $"Failed to retrieve properties: {ex.Message}");
             }
         }
+
+        [HttpPatch("changeRole")]
+        public async Task<IActionResult> ChangeUserRole([FromBody] ChangeUserRoleDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var result = await _profileService.ChangeUserRoleAsync(dto);
+            if (result.StatusCode != 200)
+            {
+                return StatusCode(result.StatusCode, result.Message);
+            }
+
+            return Ok(result.Message);
+        }
     }
 }

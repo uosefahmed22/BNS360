@@ -66,7 +66,6 @@ namespace Account.Reposatory.Services.Authentications
                 UserRole = (int)dto.UserRole,
                 EmailConfirmed = false
             };
-            //error here when adding password
             var Result = await _userManager.CreateAsync(user, dto.Password);
 
             if (!Result.Succeeded)
@@ -80,7 +79,6 @@ namespace Account.Reposatory.Services.Authentications
             var EmailConfirmation = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             var callBackUrl = generateCallBackUrl(EmailConfirmation, user.Id);
             var emailBody = $"<h1>Dear {user.UserName}! Welcome To BNS360.</h1><p>Please <a href='{callBackUrl}'>Click Here</a> To Confirm Your Email.</p>";
-
             await SendEmailAsync(user.Email, "Email Confirmation", emailBody);
 
             return new ApiResponse(200, "Email verification has been sent to your email successfully. Please verify it!");

@@ -30,5 +30,6 @@ namespace BNS360.Repository.Data
         public DbSet<CraftsMenModel> CraftsMen { get; set; }
         public DbSet<FavoriteModel> Favorites { get; set; }
         public DbSet<FeedbackModel> Feedbacks { get; set; }
+        public DbSet<JobModel> Jobs { get; set; }
     }
 }

@@ -13,6 +13,7 @@ namespace BNS360.Apis.Helpers
             CreateMap<CategoryModelDto, CategoryModel>().ReverseMap();
             CreateMap<CraftsModelDto, CraftsModel>().ReverseMap();
             CreateMap<CraftsMenModelDto, CraftsMenModel>().ReverseMap();
+            CreateMap<JobModelDto, JobModel>().ReverseMap();
         }
     }
 }

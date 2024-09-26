@@ -33,44 +33,7 @@ namespace BNS360.Repository.Services
             _imageService = imageService;
         }
 
-        public async Task<ApiResponse> AddProfileImage(IFormFile? image, string? ImageUrl, string email)
-        {
-            try
-            {
-                var user = await _userManager.FindByEmailAsync(email);
-                if (user == null)
-                {
-                    return new ApiResponse(404, "المستخدم غير موجود");
-                }
-
-                if (image == null)
-                {
-                    if (!string.IsNullOrEmpty(user.ImageUrl))
-                    {
-                        await _imageService.DeleteImageAsync(user.ImageUrl);
-                        user.ImageUrl = null;
-                        await _userManager.UpdateAsync(user);
-                    }
-                    return new ApiResponse(200, "تم حذف الصورة بنجاح");
-                }
-
-                var fileResult = await _imageService.UploadImageAsync(image);
-                if (fileResult.Item1 == 1)
-                {
-                    user.ImageUrl = fileResult.Item2;
-                    await _userManager.UpdateAsync(user);
-                    return new ApiResponse(200, "تم اضافة الصورة بنجاح");
-                }
-                else
-                {
-                    return new ApiResponse(400, fileResult.Item2);
-                }
-            }
-            catch (Exception ex)
-            {
-                return new ApiResponse(400, ex.Message);
-            }
-        }
+        
         public async Task<ApiResponse> AddUserToRole(string email, string roleName)
         {
             var user = await _userManager.FindByEmailAsync(email);
@@ -138,27 +101,6 @@ namespace BNS360.Repository.Services
                 return new ApiResponse(400, ex.Message);
             }
         }
-        public async Task<ApiResponse> DeleteUser(string email)
-        {
-            try
-            {
-                var user = _userManager.FindByEmailAsync(email);
-                if (user == null)
-                {
-                    return new ApiResponse(404, "المستخدم غير موجود");
-                }
-                var result = await _userManager.DeleteAsync(user.Result);
-                if (result.Succeeded)
-                {
-                    return new ApiResponse(200, "تم حذف المستخدم بنجاح");
-                }
-                return new ApiResponse(400, "فشل في حذف المستخدم");
-            }
-            catch (Exception ex)
-            {
-                return new ApiResponse(400, ex.Message);
-            }
-        }
         public async Task<ApiResponse> GetRolesAsync()
         {
             try
@@ -189,26 +131,6 @@ namespace BNS360.Repository.Services
             {
                 return new ApiResponse(400, ex.Message);
             }
-        }
-        public async Task<ApiResponse> GetUser(string email)
-        {
-            var user = await _userManager.FindByEmailAsync(email);
-            if (user == null)
-            {
-                return new ApiResponse(404, "المستخدم غير موجود");
-            }
-
-            var roles = await _userManager.GetRolesAsync(user);
-
-            var userDto = new UserDto
-            {
-                Email = user.Email,
-                FullName = user.FullName,
-                ImageUrl = user.ImageUrl,
-                UserRole = (List<string>)roles
-            };
-
-            return new ApiResponse(200, userDto);
         }
         public async Task<ApiResponse> GetUsers()
         {
@@ -262,5 +184,8 @@ namespace BNS360.Repository.Services
                 return new ApiResponse(400, ex.Message);
             }
         }
+        
+       
+
     }
 }

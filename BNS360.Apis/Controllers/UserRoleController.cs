@@ -89,35 +89,5 @@ namespace BNS360.Apis.Controllers
             return Ok(roles);
         }
 
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
-        [HttpPatch("addProfileImage")]
-        public async Task<IActionResult> AddProfileImage(IFormFile image)
-        {
-            var email = User.FindFirst(ClaimTypes.Email)?.Value;
-            var result = await _userRoleService.AddProfileImage(image, null, email);
-            return Ok(result);
-        }
-
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
-        [HttpGet("getUser")]
-        public async Task<IActionResult> GetUser()
-        {
-            var email = User.FindFirst(ClaimTypes.Email)?.Value;
-            var result = await _userRoleService.GetUser(email);
-            return Ok(result);
-        }
-
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "User , Admin")]
-        [HttpDelete("deleteUser")]
-        public async Task<IActionResult> DeleteUser()
-        {
-            var email = User.FindFirst(ClaimTypes.Email)?.Value;
-            if (email == null)
-            {
-                return BadRequest(new ApiResponse(400, "Invalid user"));
-            }
-            var result = await _userRoleService.DeleteUser(email);
-            return Ok(result);
-        }
     }
 }

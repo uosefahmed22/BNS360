@@ -30,7 +30,7 @@ namespace BNS360.Core.Dto
         [NotMapped]
         public ICollection<IFormFile>? Images { get; set; }
         public List<string>? ImageUrls { get; set; }
-        public string userId { get; set; }
+        public string? userId { get; set; }
         public int? CategoriesModelId { get; set; }
     }
 }

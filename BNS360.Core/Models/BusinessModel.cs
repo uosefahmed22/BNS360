@@ -31,6 +31,7 @@ namespace BNS360.Core.Models
         [NotMapped]
         public ICollection<IFormFile>? Images { get; set; }
         public List<string>? ImageUrls { get; set; }
+        [ForeignKey("UserId")]
         public AppUser AppUser { get; set; }
         public string UserId { get; set; }
         public int? CategoriesModelId { get; set; }

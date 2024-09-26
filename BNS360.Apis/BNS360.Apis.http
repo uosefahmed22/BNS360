@@ -1,0 +1,6 @@
+@BNS360.Apis_HostAddress = http://localhost:5098
+
+GET {{BNS360.Apis_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

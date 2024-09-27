@@ -11,9 +11,9 @@ using System.Security.Claims;
 
 namespace BNS360.Apis.Controllers
 {
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
     [Route("api/[controller]")]
     [ApiController]
-    //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
 
     public class UserRoleController : ControllerBase
     {
@@ -33,7 +33,6 @@ namespace BNS360.Apis.Controllers
             _roleManager = roleManager;
             _userRoleService = userRoleService;
         }
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         [HttpGet("getRoles")]
         public async Task<IActionResult> GetRoles()
         {
@@ -41,7 +40,6 @@ namespace BNS360.Apis.Controllers
             return Ok(roles);
         }
 
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         [HttpPost("createRole")]
         public async Task<IActionResult> CreateRole(string roleName)
         {
@@ -49,7 +47,6 @@ namespace BNS360.Apis.Controllers
             return Ok(role);
         }
 
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         [HttpDelete("deleteRole")]
         public async Task<IActionResult> DeleteRole(string roleName)
         {
@@ -57,7 +54,6 @@ namespace BNS360.Apis.Controllers
             return Ok(role);
         }
 
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         [HttpPost("addUserToRole")]
         public async Task<IActionResult> AddUserToRole(string email, string roleName)
         {
@@ -65,7 +61,6 @@ namespace BNS360.Apis.Controllers
             return Ok(result);
         }
 
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         [HttpPost("removeUserFromRole")]
         public async Task<IActionResult> RemoveUserFromRole(string email, string roleName)
         {
@@ -73,7 +68,6 @@ namespace BNS360.Apis.Controllers
             return Ok(result);
         }
 
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
         [HttpGet("getUsers")]
         public async Task<IActionResult> GetUsers()
         {
@@ -81,13 +75,11 @@ namespace BNS360.Apis.Controllers
             return Ok(users);
         }
 
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         [HttpGet("getRolesByUser")]
         public async Task<IActionResult> GetRolesByUser(string email)
         {
             var roles = await _userRoleService.GetRolesByUser(email);
             return Ok(roles);
         }
-
     }
 }

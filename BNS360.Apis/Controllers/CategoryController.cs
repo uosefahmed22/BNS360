@@ -1,5 +1,7 @@
 ﻿using BNS360.Core.Dto;
 using BNS360.Core.IRepository;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,6 +17,7 @@ namespace BNS360.Apis.Controllers
         {
             _categoryRepository = categoryRepository;
         }
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         [HttpPost("addcategory")]
         public async Task<IActionResult> AddCategory(CategoryModelDto model)
         {
@@ -49,6 +52,7 @@ namespace BNS360.Apis.Controllers
             }
             return Ok(result);
         }
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         [HttpPut("updatecategory")]
         public async Task<IActionResult> UpdateCategory(int categoryId, CategoryModelDto model)
 
@@ -64,6 +68,7 @@ namespace BNS360.Apis.Controllers
             }
             return BadRequest("Invalid model");
         }
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin")]
         [HttpDelete("deletecategory")]
         public async Task<IActionResult> DeleteCategory(int categoryId)
         {

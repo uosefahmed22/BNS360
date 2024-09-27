@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BNS360.Repository.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240926103117_initialMigration")]
+    [Migration("20240927120702_initialMigration")]
     partial class initialMigration
     {
         /// <inheritdoc />
@@ -145,9 +145,6 @@ namespace BNS360.Repository.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("AppUserId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("BusinessAddressArabic")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -199,13 +196,13 @@ namespace BNS360.Repository.Data.Migrations
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AppUserId");
-
                     b.HasIndex("CategoriesModelId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("BusinessModels");
                 });
@@ -240,9 +237,6 @@ namespace BNS360.Repository.Data.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("AppUserId")
-                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("Closing")
                         .HasColumnType("datetime2");
@@ -289,13 +283,13 @@ namespace BNS360.Repository.Data.Migrations
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AppUserId");
-
                     b.HasIndex("CraftsModelId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("CraftsMen");
                 });
@@ -331,26 +325,148 @@ namespace BNS360.Repository.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("AppUserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("BusinessModelId")
+                    b.Property<int?>("CraftsMenId")
                         .HasColumnType("int");
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("businessId")
+                    b.Property<int?>("businessId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AppUserId");
+                    b.HasIndex("CraftsMenId");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("businessId");
+
+                    b.ToTable("Favorites");
+                });
+
+            modelBuilder.Entity("BNS360.Core.Models.FeedbackModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("BusinessModelId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("CraftsMenModelId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Feedback")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("rating")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
 
                     b.HasIndex("BusinessModelId");
 
-                    b.ToTable("Favorites");
+                    b.HasIndex("CraftsMenModelId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Feedbacks");
+                });
+
+            modelBuilder.Entity("BNS360.Core.Models.JobModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AddreesInArabic")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AddreesInEnglish")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("JobDescriptionArabic")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("JobDescriptionEnglish")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("JobTitleArabic")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("JobTitleEnglish")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Numbers")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Requirements")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("Salary")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("TimeAddedjob")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("WorkHours")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Jobs");
+                });
+
+            modelBuilder.Entity("BNS360.Core.Models.SavedJobsModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("JobId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("JobId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("SavedJobs");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -488,14 +604,16 @@ namespace BNS360.Repository.Data.Migrations
 
             modelBuilder.Entity("BNS360.Core.Models.BusinessModel", b =>
                 {
-                    b.HasOne("BNS360.Core.Models.Auth.AppUser", "AppUser")
-                        .WithMany()
-                        .HasForeignKey("AppUserId");
-
                     b.HasOne("BNS360.Core.Models.CategoryModel", "CategoryModel")
                         .WithMany("BusinessModels")
                         .HasForeignKey("CategoriesModelId")
                         .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("BNS360.Core.Models.Auth.AppUser", "AppUser")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("AppUser");
 
@@ -504,13 +622,15 @@ namespace BNS360.Repository.Data.Migrations
 
             modelBuilder.Entity("BNS360.Core.Models.CraftsMenModel", b =>
                 {
-                    b.HasOne("BNS360.Core.Models.Auth.AppUser", "AppUser")
-                        .WithMany()
-                        .HasForeignKey("AppUserId");
-
                     b.HasOne("BNS360.Core.Models.CraftsModel", "CraftsModel")
                         .WithMany()
                         .HasForeignKey("CraftsModelId");
+
+                    b.HasOne("BNS360.Core.Models.Auth.AppUser", "AppUser")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("AppUser");
 
@@ -519,19 +639,78 @@ namespace BNS360.Repository.Data.Migrations
 
             modelBuilder.Entity("BNS360.Core.Models.FavoriteModel", b =>
                 {
+                    b.HasOne("BNS360.Core.Models.CraftsMenModel", "CraftsMenModel")
+                        .WithMany()
+                        .HasForeignKey("CraftsMenId");
+
                     b.HasOne("BNS360.Core.Models.Auth.AppUser", "AppUser")
                         .WithMany()
-                        .HasForeignKey("AppUserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("BNS360.Core.Models.BusinessModel", "BusinessModel")
                         .WithMany()
-                        .HasForeignKey("BusinessModelId")
+                        .HasForeignKey("businessId");
+
+                    b.Navigation("AppUser");
+
+                    b.Navigation("BusinessModel");
+
+                    b.Navigation("CraftsMenModel");
+                });
+
+            modelBuilder.Entity("BNS360.Core.Models.FeedbackModel", b =>
+                {
+                    b.HasOne("BNS360.Core.Models.BusinessModel", "BusinessModel")
+                        .WithMany()
+                        .HasForeignKey("BusinessModelId");
+
+                    b.HasOne("BNS360.Core.Models.CraftsMenModel", "CraftsMenModel")
+                        .WithMany()
+                        .HasForeignKey("CraftsMenModelId");
+
+                    b.HasOne("BNS360.Core.Models.Auth.AppUser", "AppUser")
+                        .WithMany()
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("AppUser");
 
                     b.Navigation("BusinessModel");
+
+                    b.Navigation("CraftsMenModel");
+                });
+
+            modelBuilder.Entity("BNS360.Core.Models.JobModel", b =>
+                {
+                    b.HasOne("BNS360.Core.Models.Auth.AppUser", "AppUser")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AppUser");
+                });
+
+            modelBuilder.Entity("BNS360.Core.Models.SavedJobsModel", b =>
+                {
+                    b.HasOne("BNS360.Core.Models.JobModel", "JobModel")
+                        .WithMany()
+                        .HasForeignKey("JobId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("BNS360.Core.Models.Auth.AppUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("JobModel");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

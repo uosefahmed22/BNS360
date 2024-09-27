@@ -32,6 +32,7 @@ namespace BNS360.Core.Models
         [ForeignKey("UserId")]
         public AppUser AppUser { get; set; }
         public string UserId { get; set; }
+        [ForeignKey("CraftsModelId")]
         public CraftsModel CraftsModel { get; set; }
         public int? CraftsModelId { get; set; }
     }

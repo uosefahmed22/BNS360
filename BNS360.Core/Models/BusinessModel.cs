@@ -35,6 +35,7 @@ namespace BNS360.Core.Models
         public AppUser AppUser { get; set; }
         public string UserId { get; set; }
         public int? CategoriesModelId { get; set; }
+        [ForeignKey("CategoriesModelId")]
         public CategoryModel CategoryModel { get; set; }
     }
 }

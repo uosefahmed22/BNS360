@@ -209,6 +209,37 @@ namespace BNS360.Repository.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Jobs",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    JobTitleArabic = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    JobTitleEnglish = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    JobDescriptionArabic = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    JobDescriptionEnglish = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    AddreesInArabic = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AddreesInEnglish = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Numbers = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Type = table.Column<int>(type: "int", nullable: false),
+                    WorkHours = table.Column<int>(type: "int", nullable: false),
+                    Salary = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Requirements = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    TimeAddedjob = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Jobs", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Jobs_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "BusinessModels",
                 columns: table => new
                 {
@@ -228,18 +259,18 @@ namespace BNS360.Repository.Data.Migrations
                     Latitude = table.Column<decimal>(type: "decimal(18,16)", nullable: false),
                     ProfileImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ImageUrls = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    AppUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    UserId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     CategoriesModelId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_BusinessModels", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_BusinessModels_AspNetUsers_AppUserId",
-                        column: x => x.AppUserId,
+                        name: "FK_BusinessModels_AspNetUsers_UserId",
+                        column: x => x.UserId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_BusinessModels_CategoryModels_CategoriesModelId",
                         column: x => x.CategoriesModelId,
@@ -266,22 +297,46 @@ namespace BNS360.Repository.Data.Migrations
                     Closing = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ProfileImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ImageUrls = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    AppUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    UserId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     CraftsModelId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_CraftsMen", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_CraftsMen_AspNetUsers_AppUserId",
-                        column: x => x.AppUserId,
+                        name: "FK_CraftsMen_AspNetUsers_UserId",
+                        column: x => x.UserId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_CraftsMen_Crafts_CraftsModelId",
                         column: x => x.CraftsModelId,
                         principalTable: "Crafts",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SavedJobs",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    JobId = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SavedJobs", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_SavedJobs_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_SavedJobs_Jobs_JobId",
+                        column: x => x.JobId,
+                        principalTable: "Jobs",
                         principalColumn: "Id");
                 });
 
@@ -291,25 +346,63 @@ namespace BNS360.Repository.Data.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    AppUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    businessId = table.Column<int>(type: "int", nullable: false),
-                    BusinessModelId = table.Column<int>(type: "int", nullable: false)
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    businessId = table.Column<int>(type: "int", nullable: true),
+                    CraftsMenId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Favorites", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Favorites_AspNetUsers_AppUserId",
-                        column: x => x.AppUserId,
+                        name: "FK_Favorites_AspNetUsers_UserId",
+                        column: x => x.UserId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Favorites_BusinessModels_BusinessModelId",
-                        column: x => x.BusinessModelId,
-                        principalTable: "BusinessModels",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Favorites_BusinessModels_businessId",
+                        column: x => x.businessId,
+                        principalTable: "BusinessModels",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Favorites_CraftsMen_CraftsMenId",
+                        column: x => x.CraftsMenId,
+                        principalTable: "CraftsMen",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Feedbacks",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Feedback = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    rating = table.Column<int>(type: "int", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    BusinessModelId = table.Column<int>(type: "int", nullable: true),
+                    CraftsMenModelId = table.Column<int>(type: "int", nullable: true),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Feedbacks", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Feedbacks_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Feedbacks_BusinessModels_BusinessModelId",
+                        column: x => x.BusinessModelId,
+                        principalTable: "BusinessModels",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Feedbacks_CraftsMen_CraftsMenModelId",
+                        column: x => x.CraftsMenModelId,
+                        principalTable: "CraftsMen",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateIndex(
@@ -352,19 +445,14 @@ namespace BNS360.Repository.Data.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_BusinessModels_AppUserId",
-                table: "BusinessModels",
-                column: "AppUserId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_BusinessModels_CategoriesModelId",
                 table: "BusinessModels",
                 column: "CategoriesModelId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CraftsMen_AppUserId",
-                table: "CraftsMen",
-                column: "AppUserId");
+                name: "IX_BusinessModels_UserId",
+                table: "BusinessModels",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_CraftsMen_CraftsModelId",
@@ -372,14 +460,54 @@ namespace BNS360.Repository.Data.Migrations
                 column: "CraftsModelId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Favorites_AppUserId",
-                table: "Favorites",
-                column: "AppUserId");
+                name: "IX_CraftsMen_UserId",
+                table: "CraftsMen",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Favorites_BusinessModelId",
+                name: "IX_Favorites_businessId",
                 table: "Favorites",
+                column: "businessId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Favorites_CraftsMenId",
+                table: "Favorites",
+                column: "CraftsMenId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Favorites_UserId",
+                table: "Favorites",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Feedbacks_BusinessModelId",
+                table: "Feedbacks",
                 column: "BusinessModelId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Feedbacks_CraftsMenModelId",
+                table: "Feedbacks",
+                column: "CraftsMenModelId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Feedbacks_UserId",
+                table: "Feedbacks",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Jobs_UserId",
+                table: "Jobs",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SavedJobs_JobId",
+                table: "SavedJobs",
+                column: "JobId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SavedJobs_UserId",
+                table: "SavedJobs",
+                column: "UserId");
         }
 
         /// <inheritdoc />
@@ -401,28 +529,37 @@ namespace BNS360.Repository.Data.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "CraftsMen");
+                name: "Favorites");
 
             migrationBuilder.DropTable(
-                name: "Favorites");
+                name: "Feedbacks");
 
             migrationBuilder.DropTable(
                 name: "RefreshTokens");
 
             migrationBuilder.DropTable(
-                name: "AspNetRoles");
+                name: "SavedJobs");
 
             migrationBuilder.DropTable(
-                name: "Crafts");
+                name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "BusinessModels");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
+                name: "CraftsMen");
+
+            migrationBuilder.DropTable(
+                name: "Jobs");
 
             migrationBuilder.DropTable(
                 name: "CategoryModels");
+
+            migrationBuilder.DropTable(
+                name: "Crafts");
+
+            migrationBuilder.DropTable(
+                name: "AspNetUsers");
         }
     }
 }

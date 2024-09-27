@@ -32,5 +32,6 @@ namespace BNS360.Repository.Data
         public DbSet<FeedbackModel> Feedbacks { get; set; }
         public DbSet<JobModel> Jobs { get; set; }
         public DbSet<SavedJobsModel> SavedJobs { get; set; }
+        public DbSet<PropertyModel> Properties { get; set; }
     }
 }

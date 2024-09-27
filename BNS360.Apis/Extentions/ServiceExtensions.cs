@@ -133,6 +133,7 @@ namespace BNS360.Apis.Extentions
             services.AddScoped<IJobRepository, JobRepository>();
             services.AddScoped<IProfileService, ProfileService>();
             services.AddScoped<ISavedJobsRepository, SavedJobsRepository>();
+            services.AddScoped<IPropertyRepository, PropertyRepository>();
 
             // Configure CORS using the extension method
             services.ConfigureCors();

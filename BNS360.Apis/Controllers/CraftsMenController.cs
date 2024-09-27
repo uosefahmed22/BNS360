@@ -24,7 +24,7 @@ namespace BNS360.Apis.Controllers
             _craftsMenRepository = craftsMenRepository;
             _userManager = userManager;
         }
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Craftsman")]
         [HttpPost("CreatecraftsMen")]
         public async Task<IActionResult> Create([FromForm] CraftsMenModelDto model)
         {
@@ -44,7 +44,7 @@ namespace BNS360.Apis.Controllers
             var response = await _craftsMenRepository.GetAll();
             return Ok(response);
         }
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Craftsman")]
         [HttpGet("getcraftsmenbyuserid")]
         public async Task<IActionResult> GetById()
         {
@@ -57,7 +57,7 @@ namespace BNS360.Apis.Controllers
             var response = await _craftsMenRepository.GetByUserId(user.Id);
             return Ok(response);
         }
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Craftsman")]
         [HttpPut("UpdateCraftsMen")]
         public async Task<IActionResult> Update(int CraftsMenId,[FromForm] CraftsMenModelDto model)
         {
@@ -71,7 +71,7 @@ namespace BNS360.Apis.Controllers
             var response = await _craftsMenRepository.Update(CraftsMenId,model);
             return Ok(response);
         }
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Craftsman")]
         [HttpDelete("DeleteCraftsMen")]
         public async Task<IActionResult> Delete(int CraftsMenId)
         {

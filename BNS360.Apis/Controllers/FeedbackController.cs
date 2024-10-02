@@ -127,5 +127,25 @@ namespace BNS360.Apis.Controllers
             }
             return Ok(result);
         }
+        [HttpGet("GetReviewsAndRatingsForBusinessWithDetails")]
+        public async Task<IActionResult> GetReviewsAndRatingsForBusinessWithDetails(int businessId)
+        {
+            var result = await _feedbackRepository.GetBusinessReviewsAndRatingsSummaryAsync(businessId);
+            if (result.StatusCode == 400)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+        [HttpGet("GetReviewsAndRatingsForCraftsMenWithDetails")]
+        public async Task<IActionResult> GetReviewsAndRatingsForCraftsMenWithDetails(int craftsMenId)
+        {
+            var result = await _feedbackRepository.GetCraftsmenReviewsAndRatingsSummaryAsync(craftsMenId);
+            if (result.StatusCode == 400)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
     }
 }

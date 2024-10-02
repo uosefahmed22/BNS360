@@ -240,6 +240,37 @@ namespace BNS360.Repository.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Properties",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ArabicDescription = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    EnglishDescription = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ArabicAddress = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    EnglishAddress = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Numbers = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Type = table.Column<int>(type: "int", nullable: false),
+                    Area = table.Column<int>(type: "int", nullable: false),
+                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Longitude = table.Column<decimal>(type: "decimal(18,16)", nullable: false),
+                    Latitude = table.Column<decimal>(type: "decimal(18,16)", nullable: false),
+                    TimeAddedProperty = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ImageUrls = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Properties", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Properties_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "BusinessModels",
                 columns: table => new
                 {
@@ -378,11 +409,11 @@ namespace BNS360.Repository.Data.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Feedback = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    rating = table.Column<int>(type: "int", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     BusinessModelId = table.Column<int>(type: "int", nullable: true),
                     CraftsMenModelId = table.Column<int>(type: "int", nullable: true),
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    rating = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -500,6 +531,11 @@ namespace BNS360.Repository.Data.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Properties_UserId",
+                table: "Properties",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_SavedJobs_JobId",
                 table: "SavedJobs",
                 column: "JobId");
@@ -533,6 +569,9 @@ namespace BNS360.Repository.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "Feedbacks");
+
+            migrationBuilder.DropTable(
+                name: "Properties");
 
             migrationBuilder.DropTable(
                 name: "RefreshTokens");

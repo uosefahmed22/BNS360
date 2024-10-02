@@ -16,5 +16,7 @@ namespace BNS360.Core.IRepository
         Task<ApiResponse> GetFeedbackForCraftsMen(int craftsMenId);
         Task<ApiResponse> DeleteBusinessFeedback(string userId, int feedbackId);
         Task<ApiResponse> DeleteCraftsMenFeedback(string userId, int feedbackId);
+        Task<ApiResponse> GetBusinessReviewsAndRatingsSummaryAsync(int businessId);
+        Task<ApiResponse> GetCraftsmenReviewsAndRatingsSummaryAsync(int craftsMenId);
     }
 }

@@ -12,7 +12,7 @@ namespace BNS360.Core.Models
     {
         public int Id { get; set; }
         public string Feedback { get; set; }
-        public int rating { get; set; }
+        private int _rating;
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
         public int? BusinessModelId { get; set; }
         [ForeignKey("BusinessModelId")]
@@ -23,5 +23,17 @@ namespace BNS360.Core.Models
         public string UserId { get; set; }
         [ForeignKey("UserId")]
         public AppUser AppUser { get; set; }
+        public int rating
+        {
+            get { return _rating; }
+            set
+            {
+                if (value < 1 || value > 5)
+                {
+                    throw new ArgumentOutOfRangeException("Rating must be between 1 and 5");
+                }
+                _rating = value;
+            }
+        }
     }
 }

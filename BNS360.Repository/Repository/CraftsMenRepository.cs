@@ -28,45 +28,52 @@ namespace BNS360.Repository.Repository
         }
         public async Task<ApiResponse> Create(CraftsMenModelDto model)
         {
-            var exsistingCraftsMen = _dbContext.CraftsMen.FirstOrDefault(x => x.CraftsMenNameArabic == model.CraftsMenNameArabic);
-            if (exsistingCraftsMen != null)
-                return new ApiResponse(400, "البيانات موجودة مسبقا");
-            if (model.ProfileImage != null)
+            try
             {
-                var fileResult = await _imageService.UploadImageAsync(model.ProfileImage);
-                if (fileResult.Item1 == 1)
+                var exsistingCraftsMen =await _dbContext.CraftsMen.FirstOrDefaultAsync(x => x.CraftsMenNameArabic == model.CraftsMenNameArabic);
+                if (exsistingCraftsMen != null)
+                    return new ApiResponse(400, "البيانات موجودة مسبقا");
+                if (model.ProfileImage != null)
                 {
-                    model.ProfileImageUrl = fileResult.Item2;
-                }
-                else
-                {
-                    return new ApiResponse(400, fileResult.Item2);
-                }
-            }
-            if (model.Images != null)
-            {
-                if (model.ImageUrls == null)
-                {
-                    model.ImageUrls = new List<string>();
-                }
-
-                foreach (var image in model.Images)
-                {
-                    var fileResult = await _imageService.UploadImageAsync(image);
+                    var fileResult = await _imageService.UploadImageAsync(model.ProfileImage);
                     if (fileResult.Item1 == 1)
                     {
-                        model.ImageUrls.Add(fileResult.Item2);
+                        model.ProfileImageUrl = fileResult.Item2;
                     }
                     else
                     {
                         return new ApiResponse(400, fileResult.Item2);
                     }
                 }
+                if (model.Images != null)
+                {
+                    if (model.ImageUrls == null)
+                    {
+                        model.ImageUrls = new List<string>();
+                    }
+
+                    foreach (var image in model.Images)
+                    {
+                        var fileResult = await _imageService.UploadImageAsync(image);
+                        if (fileResult.Item1 == 1)
+                        {
+                            model.ImageUrls.Add(fileResult.Item2);
+                        }
+                        else
+                        {
+                            return new ApiResponse(400, fileResult.Item2);
+                        }
+                    }
+                }
+                var craftsMen = _mapper.Map<CraftsMenModel>(model);
+                await _dbContext.CraftsMen.AddAsync(craftsMen);
+                await _dbContext.SaveChangesAsync();
+                return new ApiResponse(200, "تم الاضافة بنجاح");
             }
-            var craftsMen = _mapper.Map<CraftsMenModel>(model);
-            await _dbContext.CraftsMen.AddAsync(craftsMen);
-            await _dbContext.SaveChangesAsync();
-            return new ApiResponse(200, "تم الاضافة بنجاح");
+            catch (Exception ex)
+            {
+                return new ApiResponse(400, ex.Message);
+            }
         }
         public async Task<ApiResponse> Delete(int CraftsMenId,string Userid)
         {

@@ -121,10 +121,10 @@ namespace BNS360.Repository.Services
                 {
                     return new ApiResponse(400, "البريد الإلكتروني أو كلمة المرور غير صحيحة");
                 }
-                //if (!user.EmailConfirmed)
-                //{
-                //    return new ApiResponse(400, "الرجاء تأكيد البريد الإلكتروني الخاص بك");
-                //}
+                if (!user.EmailConfirmed)
+                {
+                    return new ApiResponse(400, "الرجاء تأكيد البريد الإلكتروني الخاص بك");
+                }
                 var jwtToken = await GenerateJwt(user);
                 return new ApiResponse(200, "تم تسجيل الدخول بنجاح", jwtToken);
             }

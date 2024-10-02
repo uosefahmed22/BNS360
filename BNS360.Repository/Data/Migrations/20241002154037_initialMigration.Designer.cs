@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BNS360.Repository.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240927124744_Update_Long_Lat")]
-    partial class Update_Long_Lat
+    [Migration("20241002154037_initialMigration")]
+    partial class initialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

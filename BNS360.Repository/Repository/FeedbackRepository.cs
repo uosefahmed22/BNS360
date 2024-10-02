@@ -94,7 +94,8 @@ namespace BNS360.Repository.Repository
                         x.Feedback,
                         x.rating,
                         x.CreatedDate,
-                        x.AppUser.FullName
+                        x.AppUser.FullName,
+                        x.AppUser.ImageUrl
                     })
                     .ToListAsync();
                 return new ApiResponse(200, feedbacks);
@@ -135,10 +136,105 @@ namespace BNS360.Repository.Repository
                         x.Feedback,
                         x.rating,
                         x.CreatedDate,
-                        x.AppUser.FullName
+                        x.AppUser.FullName,
+                        x.AppUser.ImageUrl
                     })
                     .ToListAsync();
                 return new ApiResponse(200, feedbacks);
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse(400, ex.Message);
+            }
+        }
+        public async Task<ApiResponse> GetBusinessReviewsAndRatingsSummaryAsync(int businessId)
+        {
+            try
+            {
+                var reviews = await _dbContext.Feedbacks
+                    .Where(r => r.BusinessModelId == businessId)
+                    .ToListAsync();
+
+                if (reviews == null || reviews.Count == 0)
+                {
+                    return new ApiResponse(200, new ReviewAndRatingSummaryResponse
+                    {
+                        TotalReviews = 0,
+                        AverageRating = 0,
+                        FiveStars = 0,
+                        FourStars = 0,
+                        ThreeStars = 0,
+                        TwoStars = 0,
+                        OneStars = 0
+                    });
+                }
+
+                double totalRating = reviews.Sum(r => r.rating);
+                double averageRating = totalRating / reviews.Count;
+
+                int fiveStars = reviews.Count(r => r.rating >= 4.5 && r.rating <= 5);
+                int fourStars = reviews.Count(r => r.rating >= 3.5 && r.rating < 4.5);
+                int threeStars = reviews.Count(r => r.rating >= 2.5 && r.rating < 3.5);
+                int twoStars = reviews.Count(r => r.rating >= 1.5 && r.rating < 2.5);
+                int oneStars = reviews.Count(r => r.rating >= 0.5 && r.rating < 1.5);
+
+                return new ApiResponse(200, new ReviewAndRatingSummaryResponse
+                {
+                    TotalReviews = reviews.Count,
+                    AverageRating = averageRating,
+                    FiveStars = fiveStars,
+                    FourStars = fourStars,
+                    ThreeStars = threeStars,
+                    TwoStars = twoStars,
+                    OneStars = oneStars
+                });
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse(400, ex.Message);
+            }
+        }
+        public async Task<ApiResponse> GetCraftsmenReviewsAndRatingsSummaryAsync(int craftsMenId)
+        {
+            try
+            {
+                var reviews = await _dbContext.Feedbacks
+                    .Where(r => r.CraftsMenModelId == craftsMenId)
+                    .ToListAsync();
+
+                if (reviews == null || reviews.Count == 0)
+                {
+                    return new ApiResponse(200, new ReviewAndRatingSummaryResponse
+                    {
+                        TotalReviews = 0,
+                        AverageRating = 0,
+                        FiveStars = 0,
+                        FourStars = 0,
+                        ThreeStars = 0,
+                        TwoStars = 0,
+                        OneStars = 0
+                    });
+                }
+
+                double totalRating = reviews.Sum(r => r.rating);
+                double averageRating = totalRating / reviews.Count;
+
+                int fiveStars = reviews.Count(r => r.rating >= 4.5 && r.rating <= 5);
+                int fourStars = reviews.Count(r => r.rating >= 3.5 && r.rating < 4.5);
+                int threeStars = reviews.Count(r => r.rating >= 2.5 && r.rating < 3.5);
+                int twoStars = reviews.Count(r => r.rating >= 1.5 && r.rating < 2.5);
+                int oneStars = reviews.Count(r => r.rating >= 0.5 && r.rating < 1.5);
+
+                return new ApiResponse(200, new ReviewAndRatingSummaryResponse
+                {
+                    TotalReviews = reviews.Count,
+                    AverageRating = averageRating,
+                    FiveStars = fiveStars,
+                    FourStars = fourStars,
+                    ThreeStars = threeStars,
+                    TwoStars = twoStars,
+                    OneStars = oneStars
+                });
             }
             catch (Exception ex)
             {

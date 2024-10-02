@@ -23,7 +23,7 @@ namespace BNS360.Apis.Controllers
             _businessRepository = businessRepository;
             _userManager = userManager;
         }
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "BusinessOwner")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "BusinessOwner , Admin")]
         [HttpPost("addbusiness")]
         public async Task<IActionResult> AddBusiness([FromForm] BusinessModelDto model)
         {
@@ -65,7 +65,7 @@ namespace BNS360.Apis.Controllers
             }
             return Ok(result);
         }
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "BusinessOwner")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "BusinessOwner , Admin")]
         [HttpPut("updatebusiness")]
         public async Task<IActionResult> UpdateBusiness(int businessId, [FromForm] BusinessModelDto model)
 
@@ -88,7 +88,7 @@ namespace BNS360.Apis.Controllers
             }
             return BadRequest("Invalid model");
         }
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "BusinessOwner")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "BusinessOwner , Admin")]
         [HttpDelete("deletebusiness")]
         public async Task<IActionResult> DeleteBusiness(int businessId)
         {
@@ -105,7 +105,7 @@ namespace BNS360.Apis.Controllers
             }
             return Ok(result);
         }
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "User")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "BusinessOwner , Admin")]
         [HttpGet("getbusinessesforbusinessowner")]
         public async Task<IActionResult> GetBusinessesForBusinessOwner()
         {

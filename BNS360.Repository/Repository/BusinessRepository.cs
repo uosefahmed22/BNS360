@@ -28,49 +28,56 @@ namespace BNS360.Repository.Repository
         }
         public async Task<ApiResponse> CreateBusiness(BusinessModelDto model)
         {
-            var ExsistingBusiness = await _dbContext
-                .BusinessModels
-                .FirstOrDefaultAsync(x => x.BusinessNameArabic == model.BusinessNameArabic);
-            if (ExsistingBusiness != null)
+            try
             {
-                return new ApiResponse(400, "البزنس موجود مسبقا");
-            }
-            if (model.ProfileImage != null)
-            {
-                var fileResult = await _imageService.UploadImageAsync(model.ProfileImage);
-                if (fileResult.Item1 == 1)
+                var ExsistingBusiness = await _dbContext
+                    .BusinessModels
+                    .FirstOrDefaultAsync(x => x.BusinessNameArabic == model.BusinessNameArabic);
+                if (ExsistingBusiness != null)
                 {
-                    model.ProfileImageUrl = fileResult.Item2;
+                    return new ApiResponse(400, "البزنس موجود مسبقا");
                 }
-                else
+                if (model.ProfileImage != null)
                 {
-                    return new ApiResponse(400, fileResult.Item2);
-                }
-            }
-            if (model.Images != null)
-            {
-                if (model.ImageUrls == null)
-                {
-                    model.ImageUrls = new List<string>();
-                }
-
-                foreach (var image in model.Images)
-                {
-                    var fileResult = await _imageService.UploadImageAsync(image);
+                    var fileResult = await _imageService.UploadImageAsync(model.ProfileImage);
                     if (fileResult.Item1 == 1)
                     {
-                        model.ImageUrls.Add(fileResult.Item2);
+                        model.ProfileImageUrl = fileResult.Item2;
                     }
                     else
                     {
                         return new ApiResponse(400, fileResult.Item2);
                     }
                 }
+                if (model.Images != null)
+                {
+                    if (model.ImageUrls == null)
+                    {
+                        model.ImageUrls = new List<string>();
+                    }
+
+                    foreach (var image in model.Images)
+                    {
+                        var fileResult = await _imageService.UploadImageAsync(image);
+                        if (fileResult.Item1 == 1)
+                        {
+                            model.ImageUrls.Add(fileResult.Item2);
+                        }
+                        else
+                        {
+                            return new ApiResponse(400, fileResult.Item2);
+                        }
+                    }
+                }
+                var business = _mapper.Map<BusinessModelDto, BusinessModel>(model);
+                await _dbContext.BusinessModels.AddAsync(business);
+                await _dbContext.SaveChangesAsync();
+                return new ApiResponse(200, "تم اضافة البزنس بنجاح");
             }
-            var business = _mapper.Map<BusinessModelDto, BusinessModel>(model);
-            await _dbContext.BusinessModels.AddAsync(business);
-            await _dbContext.SaveChangesAsync();
-            return new ApiResponse(200, "تم اضافة البزنس بنجاح");
+            catch (Exception ex)
+            {
+                return new ApiResponse(400, ex.Message);
+            }
         }
         public async Task<ApiResponse> DeleteBusiness(int businessId, string Userid)
         {

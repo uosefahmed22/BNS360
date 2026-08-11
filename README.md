@@ -1,105 +1,144 @@
-# BNS360 🚀
+# BNS360 API
 
-Welcome to **BNS360**, a powerful and comprehensive system designed to streamline the management of businesses, crafts, jobs, profiles, categories, feedback, and so much more. If you’re ready to manage everything in one place, from user authentication to favorite businesses, you’re in the right place! 🎉
+Graduation-project backend for discovering places, businesses, services, jobs, and properties across Beni Suef.
 
-## Features 🔥
+[![.NET 8](https://img.shields.io/badge/.NET-8.0-512BD4?logo=dotnet)](https://dotnet.microsoft.com/)
+[![API](https://img.shields.io/badge/HTTP_actions-73-blue)](#api-modules)
+[![SQL Server](https://img.shields.io/badge/SQL_Server-EF_Core-CC2927?logo=microsoftsqlserver)](https://learn.microsoft.com/ef/core/)
+[![Graduation Grade](https://img.shields.io/badge/graduation_grade-Excellent-success)](#project-background)
 
-**BNS360** is built with efficiency and usability at its core. Here's what you can do with it:
+## Overview
 
-### 1. Authentication & Authorization 🔐
-- **Register, Login, and User Management**: Seamlessly handle user authentication with endpoints for user registration, login, and role management.
-- **JWT Integration**: Secure token-based authentication to keep your application safe and sound.
-- **Password Management**: Forgot your password? No worries, you can reset it, change it, and verify your account through email.
+BNS360 was created as a digital guide to Beni Suef. It brings local businesses, craftspeople, job opportunities, properties, and useful services into one platform so users can discover what they need in the governorate and access relevant details.
 
-### 2. Business Management 🏢
-- **Add/Edit Businesses**: Manage businesses with ease. Create new businesses or update the existing ones.
-- **Business Categories**: Set businesses into categories for better organization and user experience.
-- **Business-Category Linking**: Link businesses to specific categories to simplify searches and improve navigation.
-- **Promotions for Customers**: Keep your customers in the loop with awesome promotions!
+The repository contains the complete REST API used by the client applications.
 
-### 3. Categories 📂
-- **Category Management**: Add, edit, and get all categories to maintain a well-structured and organized database.
+## Project Background
 
-### 4. Crafts & Craftmen 🛠️
-- **Craft Management**: Add crafts and link them to specific categories or craftsmen.
-- **Craftsmen Profiles**: Create profiles for skilled workers and match them to the crafts they specialize in.
-- **Availability & Updates**: Update their status, availability, and manage their relationships with different jobs.
+- Built as a Computer Science graduation project during the 2023-2024 academic year.
+- Delivered by a four-person team covering backend, frontend, Flutter, and UI/UX.
+- I served as backend developer and team leader and implemented the complete API.
+- Awarded an **Excellent** graduation-project grade.
+- The deployed pilot received **200+ user registrations** before it was taken offline.
 
-### 5. Jobs 🏗️
-- **Job Listings**: Post new job listings and search for the perfect job that fits your skills.
-- **Saved Jobs**: Save job listings for future reference so you don’t miss any opportunity.
-- **Job Applications**: Apply for jobs directly from the platform with a single click.
+## Main Features
 
-### 6. Favorites ❤️
-- **Save Favorites**: Add businesses, craftsmen, or properties to your favorites for quick access later.
-- **Unfavorite Items**: Don’t like something anymore? Simply remove it from your list.
+- Registration, login, email verification, password reset, and refresh tokens.
+- Role-based authorization and user-role administration.
+- User profiles and Cloudinary image uploads.
+- Business directory with categories, search-related data, and ratings.
+- Crafts and craftsperson profiles.
+- Job publishing and saved jobs.
+- Property listings for rent and sale.
+- Favorites for quick access to selected records.
+- Feedback and review/rating summaries.
 
-### 7. Feedback 📢
-- **Provide Feedback**: Share your feedback on businesses, jobs, and services.
-- **Feedback Management**: Review and respond to feedback to improve user experience.
+## Architecture
 
-### 8. Property Listings 🏡
-- **Add & Manage Properties**: List your properties, whether for rent or sale, and manage the listings directly.
-- **Property Details**: Get detailed information about each property.
+```text
+BNS360.Apis
+    Controllers, middleware, Swagger, dependency injection and mapping
+        |
+BNS360.Core
+    Domain models, DTOs, enums, interfaces and API responses
+        |
+BNS360.Repository
+    EF Core context, migrations, repositories, Identity and email services
+```
 
-### 9. User Profiles 👤
-- **Update Profiles**: Personalize user profiles with updates, changes, and relevant details.
-- **Manage Contact Information**: Keep contact details up-to-date for easy communication.
+The solution uses a pragmatic layered architecture that separates HTTP concerns, domain contracts, and persistence implementations.
 
----
+## Tech Stack
 
-## Tech Stack 🛠️
+| Area | Technology |
+| --- | --- |
+| Runtime | .NET 8, ASP.NET Core Web API |
+| Persistence | Entity Framework Core, SQL Server |
+| Identity | ASP.NET Core Identity, JWT, refresh tokens, RBAC |
+| Email and OTP | MailKit, Otp.NET |
+| Media | Cloudinary |
+| Mapping and docs | AutoMapper, Swagger/OpenAPI |
 
-- **Backend**: ASP.NET Core (C#) with Clean Architecture
-- **Database**: SQL Server for robust and scalable data management
-- **Authentication**: JWT (JSON Web Token) for secure, token-based authentication
-- **Cloud Services**: Integrated with **Cloudinary** for image uploads, **SMTP** for email verification
+## Project Structure
 
----
+```text
+BNS360/
+|-- BNS360.Apis/        # API host and 12 controllers
+|-- BNS360.Core/        # Models, DTOs, enums and contracts
+|-- BNS360.Repository/  # EF Core, repositories, migrations and services
+`-- BNS360.sln
+```
 
-## How to Run 💻
+## Getting Started
 
-1. **Clone the repo**:
-   ```bash
-   git clone https://github.com/your-repo/BNS360.git
-   ```
-2. **Navigate to the project directory**:
-   ```bash
-   cd BNS360
-   ```
-3. **Install dependencies**:
-   ```bash
-   dotnet restore
-   ```
-4. **Run the project**:
-   ```bash
-   dotnet run
-   ```
+### Requirements
 
----
+- .NET 8 SDK
+- SQL Server
+- SMTP credentials for verification and password-reset emails
+- Cloudinary account for image upload features
+- EF Core CLI tools
 
-## API Endpoints 📡
+### 1. Clone and restore
 
-Our API provides the following endpoints to interact with the system:
+```powershell
+git clone https://github.com/uosefahmed22/BNS360.git
+cd BNS360
+dotnet restore
+```
 
-- **Auth**: `/api/auth/`
-- **Business**: `/api/business/`
-- **Category**: `/api/category/`
-- **Craft**: `/api/craft/`
-- **Craftsmen**: `/api/craftsmen/`
-- **Favorite**: `/api/favorite/`
-- **Feedback**: `/api/feedback/`
-- **Job**: `/api/job/`
-- **Profile**: `/api/profile/`
-- **Property**: `/api/property/`
-- **Saved Jobs**: `/api/savedjobs/`
-- **UserRole**: `/api/userrole/`
+### 2. Configure the application
 
-Each endpoint is designed to be RESTful, providing you with the most straightforward way to interact with the application. For detailed API documentation, please refer to the Swagger UI integrated within the project.
+Create a local development file from the safe template:
 
----
+```powershell
+Copy-Item BNS360.Apis/appsettings.Example.json BNS360.Apis/appsettings.Development.json
+```
 
-## Why BNS360? 🎯
+Replace the placeholders under `ConnectionStrings`, `jwtConfig`, `MailSettings`, and `CloudinarySetting`. Keep real credentials out of source control.
 
-With **BNS360**, we aimed to simplify business and job management, offering a full 360-degree view of operations, from categories and craftsmen to properties and feedback. The goal is to provide a unified solution for everyone, whether you're a business owner, a job seeker, or just browsing through categories and listings. We’ve put in all our love and passion into building something that’s powerful yet easy to use. 💪
+### 3. Apply migrations
 
+```powershell
+dotnet ef database update --project BNS360.Repository --startup-project BNS360.Apis
+```
+
+### 4. Run the API
+
+```powershell
+dotnet run --project BNS360.Apis
+```
+
+Local launch profiles use `https://localhost:7293` and `http://localhost:5098`. Swagger is available at `/swagger` in Development.
+
+## API Modules
+
+The 12 controllers expose **73 HTTP actions**.
+
+| Module | Base route |
+| --- | --- |
+| Authentication | `/api/Auth` |
+| Businesses | `/api/Business` |
+| Categories | `/api/Category` |
+| Crafts | `/api/Craft` |
+| Craftspeople | `/api/CraftsMen` |
+| Favorites | `/api/Favorite` |
+| Feedback | `/api/Feedback` |
+| Jobs | `/api/Job` |
+| Profiles | `/api/Profile` |
+| Properties | `/api/Property` |
+| Saved jobs | `/api/SavedJobs` |
+| User roles | `/api/UserRole` |
+
+Use the generated Swagger document for the complete request and response contracts.
+
+## Project Status
+
+- The former pilot deployment is offline.
+- The repository currently has no automated test project; adding coverage for auth and authorization-sensitive repositories is a recommended next step.
+- Review token lifetime, CORS, validation, database indexes, and production secret management before redeployment.
+
+## Author
+
+**Youssef Ahmed** - Backend Developer and Team Leader
+[LinkedIn](https://www.linkedin.com/in/youssef-ahmed-eg/) | [GitHub](https://github.com/uosefahmed22) | [Portfolio](https://uosefahmed22.github.io/)

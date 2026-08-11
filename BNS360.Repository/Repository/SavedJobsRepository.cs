@@ -55,12 +55,15 @@ namespace BNS360.Repository.Repository
         {
             try
             {
-                var job = await _dbContext
-                    .Jobs
-                    .Where(x => x.Id == jobId && x.UserId == userId)
-                    .FirstOrDefaultAsync();
-                if (job == null)
+                var jobExists = await _dbContext.Jobs.AnyAsync(x => x.Id == jobId);
+                if (!jobExists)
                     return new ApiResponse(404, "الوظيفة غير موجودة");
+
+                var alreadySaved = await _dbContext.SavedJobs
+                    .AnyAsync(x => x.JobId == jobId && x.UserId == userId);
+                if (alreadySaved)
+                    return new ApiResponse(400, "الوظيفة محفوظة بالفعل");
+
                 var savedJob = new SavedJobsModel
                 {
                     JobId = jobId,

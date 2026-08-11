@@ -91,6 +91,7 @@ namespace BNS360.Repository.Repository
                     .Jobs
                     .Select(x => new
                     {
+                        x.Id,
                         x.JobTitleArabic,
                         x.JobTitleEnglish,
                         x.JobDescriptionArabic,
@@ -105,7 +106,7 @@ namespace BNS360.Repository.Repository
                         x.TimeAddedjob
                     })
 
-                    .FirstOrDefaultAsync();
+                    .FirstOrDefaultAsync(x => x.Id == JobId);
                 if (job == null)
                     return new ApiResponse(404, "الوظيفة غير موجودة");
                 return new ApiResponse(200, job);

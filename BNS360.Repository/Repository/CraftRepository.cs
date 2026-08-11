@@ -73,11 +73,12 @@ namespace BNS360.Repository.Repository
                 .Crafts
                 .Select(x => new
                 {
+                    x.Id,
                     x.CraftsNameArabic,
                     x.CraftsNameEnglish,
                     x.ImageUrl
                 })
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(x => x.Id == craftId);
             if (craft == null)
             {
                 return new ApiResponse(404, "الحرف غير موجود");

@@ -319,7 +319,7 @@ namespace BNS360.Repository.Services
         private async Task<AuthResult> GenerateJwt(AppUser user)
         {
             var jwtTokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_JwtConfig.Secret);
+            var key = Encoding.UTF8.GetBytes(_JwtConfig.Secret);
 
             var roles = await _userManager.GetRolesAsync(user);
 
@@ -337,6 +337,8 @@ namespace BNS360.Repository.Services
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
+                Issuer = _JwtConfig.Issuer,
+                Audience = _JwtConfig.Audience,
                 Expires = DateTime.UtcNow.AddHours(6),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
@@ -373,9 +375,10 @@ namespace BNS360.Repository.Services
             var jwtTokenHandler = new JwtSecurityTokenHandler();
             try
             {
-                _tokenValidationParameters.ValidateLifetime = false;
+                var refreshValidationParameters = _tokenValidationParameters.Clone();
+                refreshValidationParameters.ValidateLifetime = false;
 
-                var tokenInVerification = jwtTokenHandler.ValidateToken(model.Token, _tokenValidationParameters, out var validatemodelken);
+                var tokenInVerification = jwtTokenHandler.ValidateToken(model.Token, refreshValidationParameters, out var validatemodelken);
                 if (tokenInVerification == null)
                 {
                     return new AuthResult

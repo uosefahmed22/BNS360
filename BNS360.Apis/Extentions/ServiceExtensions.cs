@@ -29,16 +29,26 @@ namespace BNS360.Apis.Extentions
                 options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
             });
 
-            var key = Encoding.ASCII.GetBytes(configuration["JwtConfig:Secret"]);
+            var jwtConfig = configuration.GetRequiredSection("JwtConfig").Get<JwtConfig>()
+                ?? throw new InvalidOperationException("JwtConfig is missing.");
+            if (Encoding.UTF8.GetByteCount(jwtConfig.Secret) < 32
+                || string.IsNullOrWhiteSpace(jwtConfig.Issuer)
+                || string.IsNullOrWhiteSpace(jwtConfig.Audience))
+            {
+                throw new InvalidOperationException("JwtConfig must contain a 32-byte secret, issuer, and audience.");
+            }
+            var key = Encoding.UTF8.GetBytes(jwtConfig.Secret);
 
             var tokenvalidationParameters = new TokenValidationParameters
             {
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(key),
-                ValidateIssuer = false,
-                ValidateAudience = false,
+                ValidateIssuer = true,
+                ValidIssuer = jwtConfig.Issuer,
+                ValidateAudience = true,
+                ValidAudience = jwtConfig.Audience,
                 ValidateLifetime = true,
-                RequireExpirationTime = false,
+                RequireExpirationTime = true,
                 ClockSkew = TimeSpan.Zero
             };
 

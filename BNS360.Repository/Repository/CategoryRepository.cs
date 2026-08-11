@@ -72,11 +72,12 @@ namespace BNS360.Repository.Repository
                 .CategoryModels
                 .Select(x => new
                 {
+                    Id = x.Id,
                     CategoryNameArabic = x.CategoryNameArabic,
                     CategoryNameEnglish = x.CategoryNameEnglish,
                     ImageUrl = x.ImageUrl
                 })
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(x => x.Id == categoryId);
             if (category == null)
             {
                 return new ApiResponse(404, "التصنيف غير موجود");

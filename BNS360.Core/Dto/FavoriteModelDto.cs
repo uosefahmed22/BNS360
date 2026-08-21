@@ -8,7 +8,7 @@ namespace BNS360.Core.Dto
 {
     public class FavoriteModelDto
     {
-        public string UserId { get; set; }
+        public string UserId { get; set; } = string.Empty;
         public int? businessId { get; set; }
         public int? CraftsMenId { get; set; }
     }

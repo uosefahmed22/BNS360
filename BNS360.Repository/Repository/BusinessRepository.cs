@@ -1,10 +1,10 @@
-﻿using AutoMapper;
-using BNS360.Core.Dto;
+﻿using BNS360.Core.Dto;
 using BNS360.Core.Errors;
 using BNS360.Core.IRepository;
 using BNS360.Core.IServices;
 using BNS360.Core.Models;
 using BNS360.Repository.Data;
+using BNS360.Repository.Mapping;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -17,13 +17,11 @@ namespace BNS360.Repository.Repository
     public class BusinessRepository : IBusinessRepository
     {
         private readonly AppDbContext _dbContext;
-        private readonly IMapper _mapper;
         private readonly IImageService _imageService;
 
-        public BusinessRepository(AppDbContext context, IMapper mapper, IImageService fileService)
+        public BusinessRepository(AppDbContext context, IImageService fileService)
         {
             _dbContext = context;
-            _mapper = mapper;
             _imageService = fileService;
         }
         public async Task<ApiResponse> CreateBusiness(BusinessModelDto model)
@@ -69,14 +67,14 @@ namespace BNS360.Repository.Repository
                         }
                     }
                 }
-                var business = _mapper.Map<BusinessModelDto, BusinessModel>(model);
+                var business = model.ToEntity();
                 await _dbContext.BusinessModels.AddAsync(business);
                 await _dbContext.SaveChangesAsync();
                 return new ApiResponse(200, "تم اضافة البزنس بنجاح");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return new ApiResponse(400, ex.Message);
+                throw;
             }
         }
         public async Task<ApiResponse> DeleteBusiness(int businessId, string Userid)
@@ -200,8 +198,8 @@ namespace BNS360.Repository.Repository
                     }
                 }
             }
-            var mappedBusiness = _mapper.Map(model, business);
-            _dbContext.BusinessModels.Update(mappedBusiness);
+            model.ApplyTo(business);
+            _dbContext.BusinessModels.Update(business);
             await _dbContext.SaveChangesAsync();
             return new ApiResponse(200, "تم تعديل البزنس بنجاح");
         }

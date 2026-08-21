@@ -1,10 +1,10 @@
-﻿using AutoMapper;
-using BNS360.Core.Dto;
+﻿using BNS360.Core.Dto;
 using BNS360.Core.Errors;
 using BNS360.Core.IRepository;
 using BNS360.Core.IServices;
 using BNS360.Core.Models;
 using BNS360.Repository.Data;
+using BNS360.Repository.Mapping;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -17,13 +17,11 @@ namespace BNS360.Repository.Repository
     public class CraftsMenRepository : ICraftsMenRepository
     {
         private readonly AppDbContext _dbContext;
-        private readonly IMapper _mapper;
         private readonly IImageService _imageService;
 
-        public CraftsMenRepository(AppDbContext context, IMapper mapper, IImageService fileService)
+        public CraftsMenRepository(AppDbContext context, IImageService fileService)
         {
             _dbContext = context;
-            _mapper = mapper;
             _imageService = fileService;
         }
         public async Task<ApiResponse> Create(CraftsMenModelDto model)
@@ -65,14 +63,14 @@ namespace BNS360.Repository.Repository
                         }
                     }
                 }
-                var craftsMen = _mapper.Map<CraftsMenModel>(model);
+                var craftsMen = model.ToEntity();
                 await _dbContext.CraftsMen.AddAsync(craftsMen);
                 await _dbContext.SaveChangesAsync();
                 return new ApiResponse(200, "تم الاضافة بنجاح");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return new ApiResponse(400, ex.Message);
+                throw;
             }
         }
         public async Task<ApiResponse> Delete(int CraftsMenId,string Userid)
@@ -186,7 +184,7 @@ namespace BNS360.Repository.Repository
                     }
                 }
             }
-            _mapper.Map(model, craftsMen);
+            model.ApplyTo(craftsMen);
             _dbContext.CraftsMen.Update(craftsMen);
             await _dbContext.SaveChangesAsync();
             return new ApiResponse(200, "تم التعديل بنجاح");

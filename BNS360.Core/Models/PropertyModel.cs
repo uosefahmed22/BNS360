@@ -13,11 +13,11 @@ namespace BNS360.Core.Models
     public class PropertyModel
     {
         public int Id { get; set; }
-        public string ArabicDescription { get; set; }
+        public string ArabicDescription { get; set; } = string.Empty;
         public string? EnglishDescription { get; set; }
-        public string ArabicAddress { get; set; }
+        public string ArabicAddress { get; set; } = string.Empty;
         public string? EnglishAddress { get; set; }
-        public List<string> Numbers { get; set; }
+        public List<string> Numbers { get; set; } = [];
         public PropertyType Type { get; set; }
         public int Area { get; set; }
         public decimal Price { get; set; }
@@ -27,9 +27,9 @@ namespace BNS360.Core.Models
         [NotMapped]
         public ICollection<IFormFile>? Images { get; set; }
         public List<string>? ImageUrls { get; set; }
-        public string UserId { get; set; }
+        public string UserId { get; set; } = string.Empty;
         [ForeignKey("UserId")]
-        public AppUser AppUser { get; set; }
+        public AppUser AppUser { get; set; } = null!;
 
     }
 }

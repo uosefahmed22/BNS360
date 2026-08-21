@@ -1,20 +1,26 @@
 ﻿namespace BNS360.Apis.Extentions
 {
+    using Scalar.AspNetCore;
+
     public static class MiddlewareExtensions
     {
         public static void ConfigureMiddleware(this WebApplication app)
         {
             if (app.Environment.IsDevelopment())
             {
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "BNS360.Apis v1"));
+                app.UseSwagger(options =>
+                    options.RouteTemplate = "openapi/{documentName}.json");
+                app.MapScalarApiReference(options => options
+                    .WithTitle("BNS360 API")
+                    .WithOpenApiRoutePattern("/openapi/{documentName}.json"));
             }
 
             app.UseHttpsRedirection();
             app.UseRouting();
+            app.UseRateLimiter();
+            app.UseCors("Open");
             app.UseAuthentication();
             app.UseAuthorization();
-            app.UseCors("Open");
             app.MapControllers();
         }
     }

@@ -1,5 +1,6 @@
-
 using BNS360.Apis.Extentions;
+using BNS360.Apis.Exceptions;
+using Serilog;
 
 namespace BNS360.Apis
 {
@@ -8,26 +9,19 @@ namespace BNS360.Apis
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-
+            builder.Host.UseSerilog((context, services, configuration) => configuration
+                        .ReadFrom.Configuration(context.Configuration)
+                        .ReadFrom.Services(services)
+                        .Enrich.FromLogContext());
             builder.Services.ConfigureServices(builder.Configuration);
 
 
             var app = builder.Build();
 
+            app.UseSerilogRequestLogging();
+            app.UseMiddleware<GlobalExceptionHandler>();
             app.ConfigureMiddleware();
-            app.UseSwagger();
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwaggerUI();
-            }
-            else
-            {
-                app.UseSwaggerUI(options =>
-                {
-                    options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
-                    options.RoutePrefix = string.Empty;
-                });
-            }
+
             app.Run();
         }
     }

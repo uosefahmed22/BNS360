@@ -1,144 +1,209 @@
-# BNS360 API
+# BNS360
 
-Graduation-project backend for discovering places, businesses, services, jobs, and properties across Beni Suef.
+BNS360 is an ASP.NET Core 8 Web API for managing businesses, craftsmen, jobs, properties, favorites, feedback, user profiles, and role-based access. It uses SQL Server for persistence, ASP.NET Core Identity with JWT authentication, Cloudinary for image storage, and SMTP for account and password-recovery emails.
 
-[![.NET 8](https://img.shields.io/badge/.NET-8.0-512BD4?logo=dotnet)](https://dotnet.microsoft.com/)
-[![API](https://img.shields.io/badge/HTTP_actions-73-blue)](#api-modules)
-[![SQL Server](https://img.shields.io/badge/SQL_Server-EF_Core-CC2927?logo=microsoftsqlserver)](https://learn.microsoft.com/ef/core/)
-[![Graduation Grade](https://img.shields.io/badge/graduation_grade-Excellent-success)](#project-background)
+## Features
 
-## Overview
-
-BNS360 was created as a digital guide to Beni Suef. It brings local businesses, craftspeople, job opportunities, properties, and useful services into one platform so users can discover what they need in the governorate and access relevant details.
-
-The repository contains the complete REST API used by the client applications.
-
-## Project Background
-
-- Built as a Computer Science graduation project during the 2023-2024 academic year.
-- Delivered by a four-person team covering backend, frontend, Flutter, and UI/UX.
-- I served as backend developer and team leader and implemented the complete API.
-- Awarded an **Excellent** graduation-project grade.
-- The deployed pilot received **200+ user registrations** before it was taken offline.
-
-## Main Features
-
-- Registration, login, email verification, password reset, and refresh tokens.
-- Role-based authorization and user-role administration.
-- User profiles and Cloudinary image uploads.
-- Business directory with categories, search-related data, and ratings.
-- Crafts and craftsperson profiles.
-- Job publishing and saved jobs.
-- Property listings for rent and sale.
-- Favorites for quick access to selected records.
-- Feedback and review/rating summaries.
-
-## Architecture
-
-```text
-BNS360.Apis
-    Controllers, middleware, Swagger, dependency injection and mapping
-        |
-BNS360.Core
-    Domain models, DTOs, enums, interfaces and API responses
-        |
-BNS360.Repository
-    EF Core context, migrations, repositories, Identity and email services
-```
-
-The solution uses a pragmatic layered architecture that separates HTTP concerns, domain contracts, and persistence implementations.
-
-## Tech Stack
-
-| Area | Technology |
-| --- | --- |
-| Runtime | .NET 8, ASP.NET Core Web API |
-| Persistence | Entity Framework Core, SQL Server |
-| Identity | ASP.NET Core Identity, JWT, refresh tokens, RBAC |
-| Email and OTP | MailKit, Otp.NET |
-| Media | Cloudinary |
-| Mapping and docs | AutoMapper, Swagger/OpenAPI |
+- Registration, email confirmation, login, password change, and password recovery.
+- Short-lived JWT access tokens with hashed, rotating refresh tokens and token revocation.
+- Role-based authorization for users, administrators, business owners, and craftsmen.
+- Business, category, craft, craftsman, job, property, profile, favorite, feedback, and saved-job management.
+- Ownership checks that prevent a user from updating or deleting another user's job.
+- Image upload validation with file-size, extension, MIME-type, and file-signature checks.
+- Centralized exception handling and consistent HTTP status codes.
+- Authentication lockout and rate limiting for authentication and email endpoints.
+- Scalar API documentation in the Development environment.
 
 ## Project Structure
 
 ```text
-BNS360/
-|-- BNS360.Apis/        # API host and 12 controllers
-|-- BNS360.Core/        # Models, DTOs, enums and contracts
-|-- BNS360.Repository/  # EF Core, repositories, migrations and services
-`-- BNS360.sln
+BNS360.sln
+├── BNS360.Apis        HTTP controllers, middleware, authentication, configuration, and composition root
+├── BNS360.Core        Models, DTOs, repository contracts, and service contracts
+├── BNS360.Repository  EF Core persistence, Identity, repositories, mapping, email, and authentication services
+└── BNS360.Tests       Focused xUnit tests for OTP security and job ownership
 ```
 
-## Getting Started
+The current compile-time dependency direction is:
 
-### Requirements
-
-- .NET 8 SDK
-- SQL Server
-- SMTP credentials for verification and password-reset emails
-- Cloudinary account for image upload features
-- EF Core CLI tools
-
-### 1. Clone and restore
-
-```powershell
-git clone https://github.com/uosefahmed22/BNS360.git
-cd BNS360
-dotnet restore
+```text
+BNS360.Apis → BNS360.Repository → BNS360.Core
+BNS360.Tests → BNS360.Repository
 ```
 
-### 2. Configure the application
+This is a layered architecture. It should not be described as strict Clean Architecture because `Core` currently references ASP.NET Core Identity and transport-related packages.
 
-Create a local development file from the safe template:
+## Technology Stack
 
-```powershell
-Copy-Item BNS360.Apis/appsettings.Example.json BNS360.Apis/appsettings.Development.json
+- .NET 8 and ASP.NET Core Web API
+- Entity Framework Core 8 and SQL Server
+- ASP.NET Core Identity
+- JWT Bearer authentication
+- MailKit for SMTP email
+- CloudinaryDotNet for image storage
+- Serilog for structured logging
+- Scalar and Swagger/OpenAPI
+- xUnit and EF Core InMemory for tests
+
+## Prerequisites
+
+- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+- SQL Server or SQL Server Express/LocalDB
+- A Cloudinary account
+- An SMTP account. For Gmail, enable two-step verification and use an App Password instead of the normal account password.
+
+## Configuration and Secrets
+
+The tracked [`appsettings.json`](BNS360.Apis/appsettings.json) intentionally contains no credentials. Development secrets belong in `BNS360.Apis/appsettings.Development.json`, which is ignored by Git.
+
+Create that file locally with the following structure and replace the placeholders only on your machine:
+
+```json
+{
+  "AllowedOrigins": [
+    "https://localhost:4200",
+    "http://localhost:4200"
+  ],
+  "PublicBaseUrl": "https://localhost:7293",
+  "JwtConfig": {
+    "Issuer": "BNS360.Apis",
+    "Audience": "BNS360.Client",
+    "Secret": "<at-least-32-bytes-random-secret>",
+    "ExpirationInMinutes": 60
+  },
+  "MailSettings": {
+    "Port": 587,
+    "SmtpServer": "smtp.gmail.com",
+    "Email": "<smtp-email>",
+    "DisplayedName": "BNS360",
+    "Password": "<smtp-app-password>"
+  },
+  "CloudinarySetting": {
+    "CloudName": "<cloud-name>",
+    "ApiKey": "<api-key>",
+    "ApiSecret": "<api-secret>"
+  },
+  "ConnectionStrings": {
+    "DefaultConnection": "<sql-server-connection-string>"
+  }
+}
 ```
 
-Replace the placeholders under `ConnectionStrings`, `jwtConfig`, `MailSettings`, and `CloudinarySetting`. Keep real credentials out of source control.
+`PublicBaseUrl` must be an absolute HTTPS URL. HTTP is accepted only for a loopback development address. The JWT secret must contain at least 32 UTF-8 bytes.
 
-### 3. Apply migrations
+For production, use the deployment platform's secret manager or environment variables instead of configuration files. ASP.NET Core maps nested configuration keys using double underscores:
 
-```powershell
-dotnet ef database update --project BNS360.Repository --startup-project BNS360.Apis
+```text
+ConnectionStrings__DefaultConnection
+JwtConfig__Issuer
+JwtConfig__Audience
+JwtConfig__Secret
+MailSettings__Email
+MailSettings__Password
+CloudinarySetting__CloudName
+CloudinarySetting__ApiKey
+CloudinarySetting__ApiSecret
+PublicBaseUrl
+AllowedOrigins__0
 ```
 
-### 4. Run the API
+Never commit `appsettings.Development.json`, SMTP passwords, JWT secrets, connection strings, or Cloudinary credentials. If a credential was committed previously, removing it from the file is not enough; revoke and rotate it at the provider.
 
-```powershell
-dotnet run --project BNS360.Apis
+## Restore and Build
+
+From the repository root:
+
+```bash
+dotnet restore BNS360.sln
+dotnet build BNS360.sln --no-restore
 ```
 
-Local launch profiles use `https://localhost:7293` and `http://localhost:5098`. Swagger is available at `/swagger` in Development.
+## Database Migrations
 
-## API Modules
+Apply the migrations after configuring `DefaultConnection`:
 
-The 12 controllers expose **73 HTTP actions**.
+```bash
+dotnet ef database update --project BNS360.Repository/BNS360.Repository.csproj --startup-project BNS360.Apis/BNS360.Apis.csproj
+```
 
-| Module | Base route |
-| --- | --- |
-| Authentication | `/api/Auth` |
-| Businesses | `/api/Business` |
-| Categories | `/api/Category` |
-| Crafts | `/api/Craft` |
-| Craftspeople | `/api/CraftsMen` |
-| Favorites | `/api/Favorite` |
-| Feedback | `/api/Feedback` |
-| Jobs | `/api/Job` |
-| Profiles | `/api/Profile` |
-| Properties | `/api/Property` |
-| Saved jobs | `/api/SavedJobs` |
-| User roles | `/api/UserRole` |
+> The `SecurityHardening` migration removes legacy plaintext refresh tokens, invalidates existing refresh-token sessions, removes invalid favorite/feedback records, and deduplicates saved jobs and favorites before adding database constraints. Back up an existing database and review the migration before applying it.
 
-Use the generated Swagger document for the complete request and response contracts.
+To verify that the EF Core model matches the latest migration:
 
-## Project Status
+```bash
+dotnet ef migrations has-pending-model-changes --project BNS360.Repository/BNS360.Repository.csproj --startup-project BNS360.Apis/BNS360.Apis.csproj
+```
 
-- The former pilot deployment is offline.
-- The repository currently has no automated test project; adding coverage for auth and authorization-sensitive repositories is a recommended next step.
-- Review token lifetime, CORS, validation, database indexes, and production secret management before redeployment.
+## Run the API
 
-## Author
+```bash
+dotnet run --project BNS360.Apis/BNS360.Apis.csproj
+```
 
-**Youssef Ahmed** - Backend Developer and Team Leader
-[LinkedIn](https://www.linkedin.com/in/youssef-ahmed-eg/) | [GitHub](https://github.com/uosefahmed22) | [Portfolio](https://uosefahmed22.github.io/)
+The Development launch profiles open Scalar automatically:
+
+- Scalar: `https://localhost:7293/scalar/v1`
+- OpenAPI document: `https://localhost:7293/openapi/v1.json`
+- HTTP fallback: `http://localhost:5098`
+
+Scalar and the OpenAPI document are exposed only in the Development environment.
+
+## Authentication Notes
+
+The password-recovery flow is intentionally split into three steps:
+
+1. Call `POST /api/Auth/forget-password` with the email address.
+2. Call `POST /api/Auth/verify-otp` with the email and OTP. A successful response returns a single-use reset token.
+3. Call `POST /api/Auth/reset-password` with the email, new password, password confirmation, and returned reset token.
+
+The OTP expires after five minutes and is invalidated after five failed attempts. The reset token expires after ten minutes and can be consumed only once. This storage is currently in process memory, so a distributed cache or database-backed implementation is required before running multiple API instances.
+
+Changing or resetting a password revokes the user's active refresh tokens.
+
+## API Areas
+
+| Area | Base route | Access summary |
+|---|---|---|
+| Authentication | `/api/Auth` | Public authentication endpoints and authenticated password change |
+| Businesses | `/api/Business` | Public reads; business-owner/admin writes |
+| Categories | `/api/Category` | Public reads; admin writes |
+| Crafts | `/api/Craft` | Public reads; admin writes |
+| Craftsmen | `/api/CraftsMen` | Public reads; craftsman/admin writes |
+| Jobs | `/api/Job` | Public reads; authenticated owner writes |
+| Properties | `/api/Property` | Public reads; authenticated user writes |
+| Favorites | `/api/Favorite` | Authenticated users |
+| Feedback | `/api/Feedback` | Public reads; authenticated users write |
+| Saved jobs | `/api/SavedJobs` | Authenticated users |
+| Profiles | `/api/Profile` | Authenticated users |
+| Roles | `/api/UserRole` | Administrators |
+
+Use Scalar for the exact request models, query parameters, and response schemas.
+
+## Tests and Security Audit
+
+Run the automated tests:
+
+```bash
+dotnet test BNS360.sln --no-build
+```
+
+The current suite contains focused tests for:
+
+- Job update/delete ownership enforcement.
+- Owner-authorized job deletion.
+- OTP verification and single-use reset tokens.
+- OTP invalidation after repeated failed attempts.
+
+Check direct and transitive NuGet dependencies for known vulnerabilities:
+
+```bash
+dotnet list BNS360.sln package --vulnerable --include-transitive
+```
+
+## Logging and Error Handling
+
+- `GlobalExceptionHandler` converts unhandled failures into a safe JSON response and records the server-side exception with its trace ID.
+- Validation failures return structured field errors.
+- API responses use their actual HTTP status codes.
+- Development startup lifetime messages are suppressed; request and error logs remain available through Serilog.
+- Do not log access tokens, refresh tokens, OTPs, passwords, SMTP credentials, or connection strings.

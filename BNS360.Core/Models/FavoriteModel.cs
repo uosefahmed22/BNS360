@@ -11,14 +11,14 @@ namespace BNS360.Core.Models
     public class FavoriteModel
     {
         public int Id { get; set; }
-        public string UserId { get; set; }
+        public string UserId { get; set; } = string.Empty;
         [ForeignKey("UserId")]
-        public AppUser AppUser { get; set; }
+        public AppUser AppUser { get; set; } = null!;
         public int? businessId { get; set; }
         [ForeignKey("businessId")]
-        public BusinessModel BusinessModel { get; set; }
+        public BusinessModel? BusinessModel { get; set; }
         public int? CraftsMenId { get; set; }
         [ForeignKey("CraftsMenId")]
-        public CraftsMenModel CraftsMenModel { get; set; }
+        public CraftsMenModel? CraftsMenModel { get; set; }
     }
 }

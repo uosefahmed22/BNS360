@@ -6,7 +6,6 @@ using MailKit.Security;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using MimeKit;
@@ -28,14 +27,12 @@ namespace BNS360.Repository.Services
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly AppDbContext _dbContext;
         private readonly TokenValidationParameters _tokenValidationParameters;
-        private readonly IMemoryCache _cache;
         private readonly JwtConfig _JwtConfig;
         private readonly IOtpService _otpService;
         private readonly MailSettings _mailSettings;
 
         public AuthService(UserManager<AppUser> userManager,
             IOptionsMonitor<JwtConfig> optionsMonitor,
-            IMemoryCache cache,
             RoleManager<IdentityRole> roleManager,
             IOptionsMonitor<MailSettings> options,
             TokenValidationParameters tokenValidationParameters,
@@ -49,7 +46,6 @@ namespace BNS360.Repository.Services
             _dbContext = dbContext;
             _otpService = otpService;
             _tokenValidationParameters = tokenValidationParameters;
-            _cache = cache;
             _JwtConfig = optionsMonitor.CurrentValue;
             _mailSettings = options.CurrentValue;
         }
@@ -82,7 +78,6 @@ namespace BNS360.Repository.Services
                     await _roleManager.CreateAsync(new IdentityRole("User"));
                 }
                 await _userManager.AddToRoleAsync(newUser, "User");
-                var jwtToken = await GenerateJwt(newUser);
                 var EmailConfirmation = await _userManager.GenerateEmailConfirmationTokenAsync(newUser);
                 var callBackUrl = generateCallBackUrl(EmailConfirmation, newUser.Id);
                 var emailBody = $"<h1>عزيزي {newUser.FullName}</h1><p>شكرا لتسجيلك في موقعنا</p><p>لتأكيد حسابك اضغط على الرابط التالي</p><a href='{callBackUrl}'>اضغط هنا</a>";
@@ -110,28 +105,32 @@ namespace BNS360.Repository.Services
         }
         public async Task<ApiResponse> LoginAsync(Login model)
         {
-            try
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user == null)
             {
-                var user = await _userManager.FindByEmailAsync(model.Email);
-                if (user == null)
-                {
-                    return new ApiResponse(404, "البريد الإلكتروني أو كلمة المرور غير صحيحة");
-                }
-                if (!await _userManager.CheckPasswordAsync(user, model.Password))
-                {
-                    return new ApiResponse(400, "البريد الإلكتروني أو كلمة المرور غير صحيحة");
-                }
-                if (!user.EmailConfirmed)
-                {
-                    return new ApiResponse(400, "الرجاء تأكيد البريد الإلكتروني الخاص بك");
-                }
-                var jwtToken = await GenerateJwt(user);
-                return new ApiResponse(200, "تم تسجيل الدخول بنجاح", jwtToken);
+                return new ApiResponse(401, "البريد الإلكتروني أو كلمة المرور غير صحيحة");
             }
-            catch (Exception ex)
+
+            if (await _userManager.IsLockedOutAsync(user))
             {
-                return new ApiResponse(500, ex.Message);
+                return new ApiResponse(401, "تعذر تسجيل الدخول. حاول مرة أخرى لاحقا");
             }
+
+            if (!await _userManager.CheckPasswordAsync(user, model.Password))
+            {
+                await _userManager.AccessFailedAsync(user);
+                return new ApiResponse(401, "البريد الإلكتروني أو كلمة المرور غير صحيحة");
+            }
+
+            await _userManager.ResetAccessFailedCountAsync(user);
+
+            if (!user.EmailConfirmed)
+            {
+                return new ApiResponse(403, "الرجاء تأكيد البريد الإلكتروني الخاص بك");
+            }
+
+            var jwtToken = await GenerateJwt(user);
+            return new ApiResponse(200, "تم تسجيل الدخول بنجاح", jwtToken);
         }
         public async Task<ApiResponse> ChangePasswordAsync(ChangePassword model, string email)
         {
@@ -144,6 +143,10 @@ namespace BNS360.Repository.Services
             var result = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
             if (result.Succeeded)
             {
+                await _dbContext.RefreshTokens
+                    .Where(x => x.UserId == user.Id && !x.Invalidated)
+                    .ExecuteUpdateAsync(setters => setters
+                        .SetProperty(x => x.Invalidated, true));
                 return new ApiResponse(200, "تم تغيير كلمة المرور بنجاح");
             }
 
@@ -162,44 +165,29 @@ namespace BNS360.Repository.Services
         }
         public async Task<ApiResponse> ForgetPassword(string email)
         {
-            try
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user != null)
             {
-                var user = await _userManager.FindByEmailAsync(email);
-                if (user == null)
-                {
-                    return new ApiResponse { StatusCode = 400, Message = "البريد الإلكتروني غير موجود" };
-                }
                 var otp = _otpService.GenerateOtp(email);
-                var emailBody = $"<h1>كود التحقق</h1><p>كود التحقق الخاص بك هو {otp}</p>";
                 await SendEmailAsync(email,
-                       "كود التحقق",
-                       $"كود التحقق الخاص بك هو: {otp}هذا الرمز صالح لمدة 5 دقائق فقط.");
-                return new ApiResponse(200, "تم إرسال رمز التحقق إلى بريدك الإلكتروني");
+                    "كود التحقق",
+                    $"كود التحقق الخاص بك هو: {otp}. هذا الرمز صالح لمدة 5 دقائق فقط.");
             }
-            catch (Exception ex)
-            {
-                return new ApiResponse(500, ex.Message);
-            }
+
+            return new ApiResponse(200, "إذا كان البريد مسجلا فسيتم إرسال رمز التحقق إليه");
         }
         public async Task<ApiResponse> ResendConfirmationEmailAsync(string email, Func<string, string, string> generateCallBackUrl)
         {
-            try
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user != null && !user.EmailConfirmed)
             {
-                var user = await _userManager.FindByEmailAsync(email);
-                if (user == null)
-                {
-                    return new ApiResponse { StatusCode = 400, Message = "البريد الإلكتروني غير موجود" };
-                }
                 var EmailConfirmation = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                 var callBackUrl = generateCallBackUrl(EmailConfirmation, user.Id);
                 var emailBody = $"<h1>عزيزي {user.FullName}</h1><p>شكرا لتسجيلك في موقعنا</p><p>لتأكيد حسابك اضغط على الرابط التالي</p><a href='{callBackUrl}'>اضغط هنا</a>";
-                await SendEmailAsync(user.Email, "تأكيد البريد الإلكتروني", emailBody);
-                return new ApiResponse(200, "الرجاء تأكيد البريد الإلكتروني الخاص بك");
+                await SendEmailAsync(user.Email!, "تأكيد البريد الإلكتروني", emailBody);
             }
-            catch (Exception ex)
-            {
-                return new ApiResponse(500, ex.Message);
-            }
+
+            return new ApiResponse(200, "إذا كان الحساب موجودا وغير مؤكد فسيتم إرسال رسالة التأكيد");
         }
         public async Task<ApiResponse> ResetPasswordAsync(ResetPassword model)
         {
@@ -211,9 +199,9 @@ namespace BNS360.Repository.Services
                     return new ApiResponse(400, " المستخدم غير موجود.");
                 }
 
-                if (!_cache.TryGetValue(model.Email, out bool isOtpValid) || !isOtpValid)
+                if (!_otpService.ConsumeResetToken(model.Email, model.ResetToken))
                 {
-                    return new ApiResponse(400, "الرمز غير صالح.");
+                    return new ApiResponse(400, "رمز إعادة تعيين كلمة المرور غير صالح أو انتهت مدته.");
                 }
 
                 var isOldPasswordEqualNew = await _userManager.CheckPasswordAsync(user, model.Password);
@@ -227,91 +215,81 @@ namespace BNS360.Repository.Services
                 var resetResult = await _userManager.ResetPasswordAsync(user, resetToken, model.Password);
                 if (resetResult.Succeeded)
                 {
+                    await _dbContext.RefreshTokens
+                        .Where(x => x.UserId == user.Id && !x.Invalidated)
+                        .ExecuteUpdateAsync(setters => setters
+                            .SetProperty(x => x.Invalidated, true));
                     return new ApiResponse(200, "لقد تم تغيير كلمة المرور بنجاح.");
                 }
 
                 var errorMessages = string.Join(", ", resetResult.Errors.Select(e => e.Description));
                 return new ApiResponse(500, $"حدث خطأ أثناء تغيير كلمة المرور: {errorMessages}");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return new ApiResponse(500, ex.Message);
+                throw;
             }
         }
         public ApiResponse VerfiyOtp(VerifyOtp dto)
         {
             try
             {
-                var isValidOtp = _otpService.IsValidOtp(dto.Email, dto.Otp);
-                if (!isValidOtp)
+                var resetToken = _otpService.VerifyOtpAndCreateResetToken(dto.Email, dto.Otp);
+                if (resetToken == null)
                 {
                     return new ApiResponse(400, "رمز التحقق غير صالح.");
                 }
-                return new ApiResponse(200, "رمز التحقق صالح.");
+                return new ApiResponse(200, "رمز التحقق صالح.", new { ResetToken = resetToken });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return new ApiResponse(500, ex.Message);
+                throw;
             }
         }
 
         //Handle Token
         public async Task<ApiResponse> RefreshToken([FromBody] TokenRequest model)
         {
-            try
+            var result = await RotateRefreshTokenAsync(model);
+            if (!result.Result)
             {
-                var result = await ValidateTokenAndRefreshJwt(model);
-                if (result == null)
-                {
-                    return new ApiResponse(400, "غير مصرح لك بالوصول لهذا التوكن");
-                }
-                if (!result.Result)
-                {
-                    return new ApiResponse(400, $"{string.Join(", ", result.Errors)}");
-                }
-                return new ApiResponse(200, "تم تحديث التوكن بنجاح", result);
-            }
-            catch (Exception ex)
-            {
-                return new ApiResponse(500, ex.Message);
+                return new ApiResponse(401, "التوكن غير صالح");
             }
 
+            return new ApiResponse(200, "تم تحديث التوكن بنجاح", result);
         }
+
         public async Task<ApiResponse> RevokeToken([FromBody] TokenRequest model)
         {
             try
             {
-                var result = await ValidateTokenAndRefreshJwt(model);
-                if (result == null)
+                var principal = ValidateAccessToken(model.Token, validateLifetime: false);
+                var jwtId = principal.FindFirstValue(JwtRegisteredClaimNames.Jti);
+                var userId = principal.FindFirstValue("UserId");
+
+                if (string.IsNullOrWhiteSpace(jwtId) || string.IsNullOrWhiteSpace(userId))
                 {
-                    return new ApiResponse
-                    {
-                        Message = "غير مصرح لك بالوصول لهذا التوكن",
-                        StatusCode = 401
-                    };
+                    return new ApiResponse(401, "التوكن غير صالح");
                 }
-                var storedToken = await _dbContext.RefreshTokens.
-                    FirstOrDefaultAsync(x => x.Token == model.RefreshToken);
-                if (storedToken == null)
+
+                var revokedCount = await _dbContext.RefreshTokens
+                    .Where(x => x.TokenHash == HashRefreshToken(model.RefreshToken)
+                        && x.JwtId == jwtId
+                        && x.UserId == userId
+                        && !x.IsRevoked)
+                    .ExecuteUpdateAsync(setters => setters
+                        .SetProperty(x => x.IsRevoked, true));
+
+                if (revokedCount != 1)
                 {
-                    return new ApiResponse
-                    {
-                        Message = "الرمز غير موجود",
-                        StatusCode = 404
-                    };
+                    return new ApiResponse(401, "التوكن غير صالح أو تم إلغاؤه مسبقا");
                 }
-                storedToken.IsRevoked = true;
-                _dbContext.RefreshTokens.Update(storedToken);
-                await _dbContext.SaveChangesAsync();
-                return new ApiResponse
-                {
-                    Message = "تم إلغاء التوكن بنجاح",
-                    StatusCode = 200
-                };
+
+                return new ApiResponse(200, "تم إلغاء التوكن بنجاح");
             }
-            catch (Exception ex)
+            catch (SecurityTokenException)
             {
-                return new ApiResponse(500, ex.Message);
+                return new ApiResponse(401, "التوكن غير صالح");
             }
         }
 
@@ -326,9 +304,9 @@ namespace BNS360.Repository.Services
             var claims = new List<Claim>
             {
                 new Claim("UserId" , user.Id),
-                new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                new Claim(JwtRegisteredClaimNames.Email, user.Email ?? throw new InvalidOperationException("User email is missing.")),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(JwtRegisteredClaimNames.Iat, DateTime.Now.ToUniversalTime().ToString())
+                new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString("O"))
             };
 
             claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
@@ -339,27 +317,28 @@ namespace BNS360.Repository.Services
                 Subject = new ClaimsIdentity(claims),
                 Issuer = _JwtConfig.Issuer,
                 Audience = _JwtConfig.Audience,
-                Expires = DateTime.UtcNow.AddHours(6),
+                Expires = DateTime.UtcNow.AddMinutes(_JwtConfig.ExpirationInMinutes),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
 
             var token = jwtTokenHandler.CreateToken(tokenDescriptor);
             var jwtToken = jwtTokenHandler.WriteToken(token);
 
+            var rawRefreshToken = GenerateRefreshToken();
             var refreshToken = new RefreshToken
             {
                 JwtId = token.Id,
                 UserId = user.Id,
                 CreationDate = DateTime.UtcNow,
-                ExpiryDate = DateTime.UtcNow.AddMonths(6),
-                Token = GenerateRefreshToken()
+                ExpiryDate = DateTime.UtcNow.AddDays(30),
+                TokenHash = HashRefreshToken(rawRefreshToken)
             };
             await _dbContext.RefreshTokens.AddAsync(refreshToken);
             await _dbContext.SaveChangesAsync();
             return new AuthResult
             {
                 Token = jwtToken,
-                RefreshToken = refreshToken.Token,
+                RefreshToken = rawRefreshToken,
                 Result = true
             };
         }
@@ -370,92 +349,95 @@ namespace BNS360.Repository.Services
             rng.GetBytes(randomNumber);
             return Convert.ToBase64String(randomNumber);
         }
-        private async Task<AuthResult> ValidateTokenAndRefreshJwt(TokenRequest model)
+        private async Task<AuthResult> RotateRefreshTokenAsync(TokenRequest model)
         {
-            var jwtTokenHandler = new JwtSecurityTokenHandler();
             try
             {
-                var refreshValidationParameters = _tokenValidationParameters.Clone();
-                refreshValidationParameters.ValidateLifetime = false;
+                var principal = ValidateAccessToken(model.Token, validateLifetime: false);
+                var jwtId = principal.FindFirstValue(JwtRegisteredClaimNames.Jti);
+                var userId = principal.FindFirstValue("UserId");
 
-                var tokenInVerification = jwtTokenHandler.ValidateToken(model.Token, refreshValidationParameters, out var validatemodelken);
-                if (tokenInVerification == null)
+                if (string.IsNullOrWhiteSpace(jwtId) || string.IsNullOrWhiteSpace(userId))
                 {
-                    return new AuthResult
-                    {
-                        Result = false,
-                        Errors = new List<string> { "غير مصرح لك بالوصول لهذا التوكن" }
-                    };
+                    return FailedAuthResult("التوكن غير صالح");
                 }
 
-                var claims = tokenInVerification.Claims.ToDictionary(c => c.Type, c => c.Value);
+                var storedToken = await _dbContext.RefreshTokens
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(x => x.TokenHash == HashRefreshToken(model.RefreshToken));
 
-                // Check token expiration
-                if (long.TryParse(claims[JwtRegisteredClaimNames.Exp], out var utcExpiryDate))
+                if (storedToken == null
+                    || storedToken.Used
+                    || storedToken.IsRevoked
+                    || storedToken.Invalidated
+                    || storedToken.ExpiryDate <= DateTime.UtcNow
+                    || storedToken.JwtId != jwtId
+                    || storedToken.UserId != userId)
                 {
-                    var expiryDate = UnixTimeStampToDateTime(utcExpiryDate);
-                    if (expiryDate > DateTime.UtcNow)
-                    {
-                        return new AuthResult
-                        {
-                            Result = false,
-                            Errors = new List<string> { "التوكن مازال صالح" }
-                        };
-                    }
+                    return FailedAuthResult("التوكن غير صالح");
                 }
 
-                // Check refresh token from DB
-                var storemodelken = await _dbContext.RefreshTokens.FirstOrDefaultAsync(x => x.Token == model.RefreshToken);
-                if (storemodelken == null || storemodelken.Used || storemodelken.IsRevoked || storemodelken.ExpiryDate < DateTime.UtcNow)
+                await using var transaction = await _dbContext.Database.BeginTransactionAsync();
+
+                var consumedCount = await _dbContext.RefreshTokens
+                    .Where(x => x.Id == storedToken.Id
+                        && !x.Used
+                        && !x.IsRevoked
+                        && !x.Invalidated
+                        && x.ExpiryDate > DateTime.UtcNow)
+                    .ExecuteUpdateAsync(setters => setters
+                        .SetProperty(x => x.Used, true));
+
+                if (consumedCount != 1)
                 {
-                    return new AuthResult
-                    {
-                        Result = false,
-                        Errors = new List<string> { "التوكن غير صالح" }
-                    };
+                    await transaction.RollbackAsync();
+                    return FailedAuthResult("التوكن تم استخدامه بالفعل");
                 }
 
-                // Verify the JTI (JWT ID)
-                if (storemodelken.JwtId != claims[JwtRegisteredClaimNames.Jti])
+                var user = await _userManager.FindByIdAsync(userId);
+                if (user == null)
                 {
-                    return new AuthResult
-                    {
-                        Result = false,
-                        Errors = new List<string> { "التوكن لم تتطابق " }
-                    };
+                    await transaction.RollbackAsync();
+                    return FailedAuthResult("المستخدم غير موجود");
                 }
 
-                // Mark token as used and save changes
-                storemodelken.Used = true;
-                _dbContext.RefreshTokens.Update(storemodelken);
-                await _dbContext.SaveChangesAsync();
-
-                // Generate new JWT
-                var user = await _userManager.FindByIdAsync(storemodelken.UserId);
-                return await GenerateJwt(user);
+                var result = await GenerateJwt(user);
+                await transaction.CommitAsync();
+                return result;
             }
-            catch (SecurityTokenException ex)
+            catch (SecurityTokenException)
             {
-                return new AuthResult
-                {
-                    Result = false,
-                    Errors = new List<string> { "التوكن غير صالح", ex.Message }
-                };
-            }
-            catch (Exception ex)
-            {
-                return new AuthResult
-                {
-                    Result = false,
-                    Errors = new List<string> { "حدث خطأ أثناء تحديث التوكن", ex.Message }
-                };
+                return FailedAuthResult("التوكن غير صالح");
             }
         }
-        private static DateTime UnixTimeStampToDateTime(long unixTimeStamp)
+
+        private ClaimsPrincipal ValidateAccessToken(string token, bool validateLifetime)
         {
-            var dateTimeVal = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-            dateTimeVal = dateTimeVal.AddSeconds(unixTimeStamp).ToUniversalTime();
-            return dateTimeVal;
+            var validationParameters = _tokenValidationParameters.Clone();
+            validationParameters.ValidateLifetime = validateLifetime;
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var principal = tokenHandler.ValidateToken(token, validationParameters, out var validatedToken);
+
+            if (validatedToken is not JwtSecurityToken jwtToken
+                || !string.Equals(jwtToken.Header.Alg, SecurityAlgorithms.HmacSha256, StringComparison.Ordinal))
+            {
+                throw new SecurityTokenException("Invalid token algorithm.");
+            }
+
+            return principal;
+        }
+
+        private static AuthResult FailedAuthResult(string error) => new()
+        {
+            Result = false,
+            Errors = new[] { error }
+        };
+
+        private static string HashRefreshToken(string refreshToken)
+        {
+            var hash = SHA256.HashData(Encoding.UTF8.GetBytes(refreshToken));
+            return Convert.ToHexString(hash);
         }
         private async Task SendEmailAsync(string To, string Subject, string Body, CancellationToken Cancellation = default)
         {
@@ -473,7 +455,12 @@ namespace BNS360.Repository.Services
             {
                 await client.ConnectAsync(_mailSettings.SmtpServer, _mailSettings.Port,
                     SecureSocketOptions.StartTls, Cancellation);
-                await client.AuthenticateAsync(_mailSettings.Email, _mailSettings.Password, Cancellation);
+                var smtpPassword = _mailSettings.SmtpServer.Equals(
+                    "smtp.gmail.com",
+                    StringComparison.OrdinalIgnoreCase)
+                    ? string.Concat(_mailSettings.Password.Where(character => !char.IsWhiteSpace(character)))
+                    : _mailSettings.Password;
+                await client.AuthenticateAsync(_mailSettings.Email, smtpPassword, Cancellation);
                 await client.SendAsync(message, Cancellation);
                 await client.DisconnectAsync(true, Cancellation);
             }

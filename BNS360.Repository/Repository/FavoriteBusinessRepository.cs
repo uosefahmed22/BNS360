@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using BNS360.Core.Dto;
+﻿using BNS360.Core.Dto;
 using BNS360.Core.Errors;
 using BNS360.Core.IRepository;
 using BNS360.Core.Models;
@@ -16,12 +15,9 @@ namespace BNS360.Repository.Repository
     public class FavoriteBusinessRepository : IFavoriteBusinessRepository
     {
         private readonly AppDbContext _dbContext;
-        private readonly IMapper _mapper;
-
-        public FavoriteBusinessRepository(AppDbContext dbContext,IMapper mapper)
+        public FavoriteBusinessRepository(AppDbContext dbContext)
         {
             _dbContext = dbContext;
-            _mapper = mapper;
         }
         public async Task<ApiResponse> AddBusinessToFavorite(string userId, int businessId)
         {
@@ -41,9 +37,9 @@ namespace BNS360.Repository.Repository
                 await _dbContext.SaveChangesAsync();
                 return new ApiResponse(200, "تمت الاضافة بنجاح");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return new ApiResponse(400, ex.Message);
+                throw;
             }
         }
         public async Task<ApiResponse> GetFavoriteBusinesses(string userId)
@@ -52,12 +48,12 @@ namespace BNS360.Repository.Repository
             {
                 var favorites = await _dbContext
                 .Favorites
-                .Where(x => x.UserId == userId)
+                .Where(x => x.UserId == userId && x.BusinessModel != null)
                 .Include(x => x.BusinessModel)
                 .Select(x => new
                 {
                     x.businessId,
-                    x.BusinessModel.BusinessNameArabic,
+                    x.BusinessModel!.BusinessNameArabic,
                     x.BusinessModel.BusinessNameEnglish,
                     x.BusinessModel.BusinessDescriptionArabic,
                     x.BusinessModel.BusinessDescriptionEnglish,
@@ -75,9 +71,9 @@ namespace BNS360.Repository.Repository
                 }).ToListAsync();
                 return new ApiResponse(200, favorites);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return new ApiResponse(400, ex.Message);
+                throw;
             }
         }
         public async Task<ApiResponse> RemoveBusinessFromFavorite(string userId, int businessId)
@@ -93,9 +89,9 @@ namespace BNS360.Repository.Repository
                 await _dbContext.SaveChangesAsync();
                 return new ApiResponse(200, "تمت الازالة بنجاح");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return new ApiResponse(400, ex.Message);
+                throw;
             }
         }
 
@@ -117,9 +113,9 @@ namespace BNS360.Repository.Repository
                 await _dbContext.SaveChangesAsync();
                 return new ApiResponse(200, "تمت الاضافة بنجاح");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return new ApiResponse(400, ex.Message);
+                throw;
             }
         }
         public async Task<ApiResponse> GetCraftsMenFavorites(string userId)
@@ -128,12 +124,12 @@ namespace BNS360.Repository.Repository
             {
                 var favorites = await _dbContext
                 .Favorites
-                .Where(x => x.UserId == userId)
+                .Where(x => x.UserId == userId && x.CraftsMenModel != null)
                 .Include(x => x.CraftsMenModel)
                 .Select(x => new
                 {
                     x.CraftsMenId,
-                    x.CraftsMenModel.CraftsMenNameArabic,
+                    x.CraftsMenModel!.CraftsMenNameArabic,
                     x.CraftsMenModel.CraftsMenNameEnglish,
                     x.CraftsMenModel.CraftsMenDescriptionArabic,
                     x.CraftsMenModel.CraftsMenDescriptionEnglish,
@@ -149,9 +145,9 @@ namespace BNS360.Repository.Repository
                 }).ToListAsync();
                 return new ApiResponse(200, favorites);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return new ApiResponse(400, ex.Message);
+                throw;
             }
         }
         public async Task<ApiResponse> RemovecraftsMenFromFavorite(string userId, int craftsMenId)
@@ -167,9 +163,9 @@ namespace BNS360.Repository.Repository
                 await _dbContext.SaveChangesAsync();
                 return new ApiResponse(200, "تمت الازالة بنجاح");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return new ApiResponse(400, ex.Message);
+                throw;
             }
         }
     }

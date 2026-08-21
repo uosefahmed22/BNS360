@@ -1,10 +1,10 @@
-﻿using AutoMapper;
-using BNS360.Core.Dto;
+﻿using BNS360.Core.Dto;
 using BNS360.Core.Errors;
 using BNS360.Core.IRepository;
 using BNS360.Core.IServices;
 using BNS360.Core.Models;
 using BNS360.Repository.Data;
+using BNS360.Repository.Mapping;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -17,13 +17,11 @@ namespace BNS360.Repository.Repository
     public class PropertyRepository : IPropertyRepository
     {
         private readonly AppDbContext _dbContext;
-        private readonly IMapper _mapper;
         private readonly IImageService _imageService;
 
-        public PropertyRepository(AppDbContext dbContext, IMapper mapper, IImageService imageService)
+        public PropertyRepository(AppDbContext dbContext, IImageService imageService)
         {
             _dbContext = dbContext;
-            _mapper = mapper;
             _imageService = imageService;
         }
         public async Task<ApiResponse> AddProperty(PropertyModelDto model)
@@ -50,14 +48,14 @@ namespace BNS360.Repository.Repository
                         }
                     }
                 }
-                var property = _mapper.Map<PropertyModelDto, PropertyModel>(model);
+                var property = model.ToEntity();
                 await _dbContext.Properties.AddAsync(property);
                 await _dbContext.SaveChangesAsync();
                 return new ApiResponse(200, "تمت الاضافة بنجاح");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return new ApiResponse(400, ex.Message);
+                throw;
             }
         }
         public async Task<ApiResponse> DeleteProperty(int id, string UserId)
@@ -81,9 +79,9 @@ namespace BNS360.Repository.Repository
                 await _dbContext.SaveChangesAsync();
                 return new ApiResponse(200, "تم الحذف بنجاح");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return new ApiResponse(400, ex.Message);
+                throw;
             }
         }
         public async Task<ApiResponse> GetProperty(int id)
@@ -111,9 +109,9 @@ namespace BNS360.Repository.Repository
                     return new ApiResponse(404, "العقار غير موجود");
                 return new ApiResponse(200, property);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return new ApiResponse(400, ex.Message);
+                throw;
             }
         }
         public async Task<ApiResponse> GetProperties()
@@ -138,9 +136,9 @@ namespace BNS360.Repository.Repository
                     }).ToListAsync();
                 return new ApiResponse(200, properties);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return new ApiResponse(400, ex.Message);
+                throw;
             }
         }
         public async Task<ApiResponse> UpdateProperty(int id, PropertyModelDto model)
@@ -181,14 +179,14 @@ namespace BNS360.Repository.Repository
                         }
                     }
                 }
-                var mappedproperty = _mapper.Map(model, property);
-                _dbContext.Properties.Update(mappedproperty);
+                model.ApplyTo(property);
+                _dbContext.Properties.Update(property);
                 await _dbContext.SaveChangesAsync();
                 return new ApiResponse(200, "تم التعديل بنجاح");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return new ApiResponse(400, ex.Message);
+                throw;
             }
         }
     }

@@ -1,11 +1,9 @@
 ﻿using BNS360.Core.Dto;
 using BNS360.Core.Errors;
 using BNS360.Core.IRepository;
-using BNS360.Core.Models.Auth;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -16,12 +14,10 @@ namespace BNS360.Apis.Controllers
     public class BusinessController : ControllerBase
     {
         private readonly IBusinessRepository _businessRepository;
-        private readonly UserManager<AppUser> _userManager;
 
-        public BusinessController(IBusinessRepository businessRepository,UserManager<AppUser> userManager)
+        public BusinessController(IBusinessRepository businessRepository)
         {
             _businessRepository = businessRepository;
-            _userManager = userManager;
         }
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "BusinessOwner , Admin")]
         [HttpPost("addbusiness")]
@@ -29,13 +25,12 @@ namespace BNS360.Apis.Controllers
         {
             if (ModelState.IsValid)
             {
-                var email = User.FindFirst(ClaimTypes.Email)?.Value;
-                if (email == null)
+                var userId = User.FindFirst("UserId")?.Value;
+                if (userId == null)
                 {
                     return BadRequest(new ApiResponse(400, "Invalid user"));
                 }
-                var user = await _userManager.FindByEmailAsync(email);
-                model.userId = user.Id;
+                model.userId = userId;
                 var result = await _businessRepository.CreateBusiness(model);
                 if (result.StatusCode == StatusCodes.Status400BadRequest)
                 {
@@ -72,13 +67,12 @@ namespace BNS360.Apis.Controllers
         {
             if (ModelState.IsValid)
             {
-                var email = User.FindFirst(ClaimTypes.Email)?.Value;
-                if (email == null)
+                var userId = User.FindFirst("UserId")?.Value;
+                if (userId == null)
                 {
                     return BadRequest(new ApiResponse(400, "Invalid user"));
                 }
-                var user = await _userManager.FindByEmailAsync(email);
-                model.userId = user.Id;
+                model.userId = userId;
                 var result = await _businessRepository.UpdateBusiness(businessId, model);
                 if (result.StatusCode == StatusCodes.Status400BadRequest)
                 {
@@ -92,13 +86,12 @@ namespace BNS360.Apis.Controllers
         [HttpDelete("deletebusiness")]
         public async Task<IActionResult> DeleteBusiness(int businessId)
         {
-            var email = User.FindFirst(ClaimTypes.Email)?.Value;
-            if (email == null)
+            var userId = User.FindFirst("UserId")?.Value;
+            if (userId == null)
             {
                 return BadRequest(new ApiResponse(400, "Invalid user"));
             }
-            var user = await _userManager.FindByEmailAsync(email);
-            var result = await _businessRepository.DeleteBusiness(businessId, user.Id);
+            var result = await _businessRepository.DeleteBusiness(businessId, userId);
             if (result.StatusCode == StatusCodes.Status400BadRequest)
             {
                 return BadRequest(result);
@@ -109,14 +102,12 @@ namespace BNS360.Apis.Controllers
         [HttpGet("getbusinessesforbusinessowner")]
         public async Task<IActionResult> GetBusinessesForBusinessOwner()
         {
-            var email = User.FindFirst(ClaimTypes.Email)?.Value;
-            if (email == null)
+            var userId = User.FindFirst("UserId")?.Value;
+            if (userId == null)
             {
                 return BadRequest(new ApiResponse(400, "Invalid user"));
             }
-            var user = await _userManager.FindByEmailAsync(email);
-
-            var result = await _businessRepository.GetBusinessesForBusinessOwnerAsync(user.Id);
+            var result = await _businessRepository.GetBusinessesForBusinessOwnerAsync(userId);
             if (result.StatusCode == StatusCodes.Status400BadRequest)
             {
                 return BadRequest(result);

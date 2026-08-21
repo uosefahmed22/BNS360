@@ -11,11 +11,11 @@ namespace BNS360.Core.Models
     public class CraftsModel
     {
         public int Id { get; set; }
-        public string CraftsNameArabic { get; set; }
+        public string CraftsNameArabic { get; set; } = string.Empty;
         public string? CraftsNameEnglish { get; set; }
         public string? ImageUrl { get; set; }
 
         [NotMapped]
-        public IFormFile Image { get; set; }
+        public IFormFile? Image { get; set; }
     }
 }

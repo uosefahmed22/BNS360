@@ -12,14 +12,14 @@ namespace BNS360.Core.Dto
 {
     public class BusinessModelDto
     {
-        public string BusinessNameArabic { get; set; }
+        public string BusinessNameArabic { get; set; } = string.Empty;
         public string? BusinessNameEnglish { get; set; }
-        public string BusinessDescriptionArabic { get; set; }
+        public string BusinessDescriptionArabic { get; set; } = string.Empty;
         public string? BusinessDescriptionEnglish { get; set; }
-        public string BusinessAddressArabic { get; set; }
+        public string BusinessAddressArabic { get; set; } = string.Empty;
         public string? BusinessAddressEnglish { get; set; }
         public DayOfWeekEnum Holidays { get; set; }
-        public List<string> Numbers { get; set; }
+        public List<string> Numbers { get; set; } = [];
         public DateTime Opening { get; set; }
         public DateTime Closing { get; set; }
         public decimal Longitude { get; set; }

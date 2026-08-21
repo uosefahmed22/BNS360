@@ -46,9 +46,9 @@ namespace BNS360.Repository.Repository
                     ).ToListAsync();
                 return new ApiResponse(200, savedJobs);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return new ApiResponse(400, ex.Message);
+                throw;
             }
         }
         public async Task<ApiResponse> SaveJob(int jobId, string userId)
@@ -73,9 +73,9 @@ namespace BNS360.Repository.Repository
                 await _dbContext.SaveChangesAsync();
                 return new ApiResponse(200, "تم الحفظ بنجاح");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return new ApiResponse(400, ex.Message);
+                throw;
             }
         }
         public async Task<ApiResponse> UnSaveJob(int jobId, string userId)
@@ -92,9 +92,9 @@ namespace BNS360.Repository.Repository
                 await _dbContext.SaveChangesAsync();
                 return new ApiResponse(200, "تم الحذف بنجاح");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return new ApiResponse(400, ex.Message);
+                throw;
             }
         }
     }

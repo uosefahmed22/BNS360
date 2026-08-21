@@ -11,10 +11,10 @@ namespace BNS360.Core.Dto
 {
     public class CategoryModelDto
     {
-        public string CategoryNameArabic { get; set; }
+        public string CategoryNameArabic { get; set; } = string.Empty;
         public string? CategoryNameEnglish { get; set; }
         public string? ImageUrl { get; set; }
         [NotMapped]
-        public IFormFile Image { get; set; }
+        public IFormFile? Image { get; set; }
     }
 }

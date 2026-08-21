@@ -34,6 +34,10 @@ namespace BNS360.Apis.Controllers
                 return BadRequest(new ApiResponse(400, "Invalid user"));
             }
             var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                return Unauthorized(new ApiResponse(401, "Invalid user"));
+            }
             model.UserId = user.Id;
             var response = await _craftsMenRepository.Create(model);
             return Ok(response);
@@ -54,6 +58,10 @@ namespace BNS360.Apis.Controllers
                 return BadRequest(new ApiResponse(400, "Invalid user"));
             }
             var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                return Unauthorized(new ApiResponse(401, "Invalid user"));
+            }
             var response = await _craftsMenRepository.GetByUserId(user.Id);
             return Ok(response);
         }
@@ -67,6 +75,10 @@ namespace BNS360.Apis.Controllers
                 return BadRequest(new ApiResponse(400, "Invalid user"));
             }
             var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                return Unauthorized(new ApiResponse(401, "Invalid user"));
+            }
             model.UserId = user.Id;
             var response = await _craftsMenRepository.Update(CraftsMenId,model);
             return Ok(response);
@@ -81,6 +93,10 @@ namespace BNS360.Apis.Controllers
                 return BadRequest(new ApiResponse(400, "Invalid user"));
             }
             var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                return Unauthorized(new ApiResponse(401, "Invalid user"));
+            }
 
             var response = await _craftsMenRepository.Delete(CraftsMenId, user.Id);
             return Ok(response);

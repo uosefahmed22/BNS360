@@ -13,9 +13,9 @@ namespace BNS360.Core.Models
         public int Id { get; set; }
         public int JobId { get; set; }
         [ForeignKey("JobId")]
-        public JobModel JobModel { get; set; }
-        public string UserId { get; set; }
+        public JobModel JobModel { get; set; } = null!;
+        public string UserId { get; set; } = string.Empty;
         [ForeignKey("UserId")]
-        public AppUser User { get; set; }
+        public AppUser User { get; set; } = null!;
     }
 }

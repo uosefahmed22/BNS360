@@ -1,10 +1,10 @@
-﻿using AutoMapper;
-using BNS360.Core.Dto;
+﻿using BNS360.Core.Dto;
 using BNS360.Core.Errors;
 using BNS360.Core.IRepository;
 using BNS360.Core.IServices;
 using BNS360.Core.Models;
 using BNS360.Repository.Data;
+using BNS360.Repository.Mapping;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -17,13 +17,11 @@ namespace BNS360.Repository.Repository
     public class CraftRepository : ICraftRepository
     {
         private readonly AppDbContext _context;
-        private readonly IMapper _mapper;
         private readonly IImageService _imageService;
 
-        public CraftRepository(AppDbContext context, IMapper mapper, IImageService imageService)
+        public CraftRepository(AppDbContext context, IImageService imageService)
         {
             _context = context;
-            _mapper = mapper;
             _imageService = imageService;
         }
         public async Task<ApiResponse> CreateCraft(CraftsModelDto model)
@@ -35,7 +33,7 @@ namespace BNS360.Repository.Repository
             {
                 return new ApiResponse(400, "موجود بالفعل");
             }
-            var craft = _mapper.Map<CraftsModel>(model);
+            var craft = model.ToEntity();
             if (model.Image != null)
             {
                 var result = await _imageService.UploadImageAsync(model.Image);

@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using BNS360.Core.Dto;
+﻿using BNS360.Core.Dto;
 using BNS360.Core.Errors;
 using BNS360.Core.IRepository;
 using BNS360.Core.Models;
@@ -16,12 +15,9 @@ namespace BNS360.Repository.Repository
     public class FeedbackRepository : IFeedbackRepository
     {
         private readonly AppDbContext _dbContext;
-        private readonly IMapper _mapper;
-
-        public FeedbackRepository(AppDbContext dbContext,IMapper mapper)
+        public FeedbackRepository(AppDbContext dbContext)
         {
             _dbContext = dbContext;
-            _mapper = mapper;
         }
         public async Task<ApiResponse> AddFeedbackForBusiness(string userId, int businessId, string feedback, int rating)
         {
@@ -38,9 +34,9 @@ namespace BNS360.Repository.Repository
                 await _dbContext.SaveChangesAsync();
                 return new ApiResponse(200, "تم اضافة التقييم بنجاح");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return new ApiResponse(400, ex.Message);
+                throw;
             }
         }
         public async Task<ApiResponse> AddFeedbackForCraftsMen(string userId, int craftsMenId, string feedback, int rating)
@@ -58,9 +54,9 @@ namespace BNS360.Repository.Repository
                 await _dbContext.SaveChangesAsync();
                 return new ApiResponse(200, "تم اضافة التقييم بنجاح");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return new ApiResponse(400, ex.Message);
+                throw;
             }
         }
         public async Task<ApiResponse> DeleteBusinessFeedback(string userId, int feedbackId)
@@ -76,9 +72,9 @@ namespace BNS360.Repository.Repository
                 await _dbContext.SaveChangesAsync();
                 return new ApiResponse(200, "تم حذف التقييم بنجاح");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return new ApiResponse(400, ex.Message);
+                throw;
             }
         }
         public async Task<ApiResponse> GetFeedbackForBusiness(int businessId)
@@ -100,9 +96,9 @@ namespace BNS360.Repository.Repository
                     .ToListAsync();
                 return new ApiResponse(200, feedbacks);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return new ApiResponse(400, ex.Message);
+                throw;
             }
         }
         public async Task<ApiResponse> DeleteCraftsMenFeedback(string userId, int feedbackId)
@@ -118,9 +114,9 @@ namespace BNS360.Repository.Repository
                 await _dbContext.SaveChangesAsync();
                 return new ApiResponse(200, "تم حذف التقييم بنجاح");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return new ApiResponse(400, ex.Message);
+                throw;
             }
         }
         public async Task<ApiResponse> GetFeedbackForCraftsMen(int craftsMenId)
@@ -142,9 +138,9 @@ namespace BNS360.Repository.Repository
                     .ToListAsync();
                 return new ApiResponse(200, feedbacks);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return new ApiResponse(400, ex.Message);
+                throw;
             }
         }
         public async Task<ApiResponse> GetBusinessReviewsAndRatingsSummaryAsync(int businessId)
@@ -189,9 +185,9 @@ namespace BNS360.Repository.Repository
                     OneStars = oneStars
                 });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return new ApiResponse(400, ex.Message);
+                throw;
             }
         }
         public async Task<ApiResponse> GetCraftsmenReviewsAndRatingsSummaryAsync(int craftsMenId)
@@ -236,9 +232,9 @@ namespace BNS360.Repository.Repository
                     OneStars = oneStars
                 });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return new ApiResponse(400, ex.Message);
+                throw;
             }
         }
     }

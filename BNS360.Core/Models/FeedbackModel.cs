@@ -11,18 +11,18 @@ namespace BNS360.Core.Models
     public class FeedbackModel
     {
         public int Id { get; set; }
-        public string Feedback { get; set; }
+        public string Feedback { get; set; } = string.Empty;
         private int _rating;
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
         public int? BusinessModelId { get; set; }
         [ForeignKey("BusinessModelId")]
-        public BusinessModel BusinessModel { get; set; }
+        public BusinessModel? BusinessModel { get; set; }
         public int? CraftsMenModelId { get; set; }
         [ForeignKey("CraftsMenModelId")]
-        public CraftsMenModel CraftsMenModel { get; set; }
-        public string UserId { get; set; }
+        public CraftsMenModel? CraftsMenModel { get; set; }
+        public string UserId { get; set; } = string.Empty;
         [ForeignKey("UserId")]
-        public AppUser AppUser { get; set; }
+        public AppUser AppUser { get; set; } = null!;
         public int rating
         {
             get { return _rating; }

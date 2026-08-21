@@ -11,11 +11,11 @@ namespace BNS360.Core.Models.Auth
     {
         [Required]
         [EmailAddress(ErrorMessage = "Invalid email address")]
-        public string Email { get; set; }
+        public string Email { get; set; } = string.Empty;
 
         [Required]
         [RegularExpression("^[0-9]{6}$", ErrorMessage = "Only digits allowed")]
         [StringLength(6, ErrorMessage = "OTP must be exactly 6 digits", MinimumLength = 6)]
-        public string Otp { get; set; }
+        public string Otp { get; set; } = string.Empty;
     }
 }

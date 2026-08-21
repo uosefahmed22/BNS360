@@ -11,11 +11,11 @@ namespace BNS360.Core.Dto
 {
     public class PropertyModelDto
     {
-        public string ArabicDescription { get; set; }
+        public string ArabicDescription { get; set; } = string.Empty;
         public string? EnglishDescription { get; set; }
-        public string ArabicAddress { get; set; }
+        public string ArabicAddress { get; set; } = string.Empty;
         public string? EnglishAddress { get; set; }
-        public List<string> Numbers { get; set; }
+        public List<string> Numbers { get; set; } = [];
         public PropertyType Type { get; set; }
         public int Area { get; set; }
         public decimal Price { get; set; }

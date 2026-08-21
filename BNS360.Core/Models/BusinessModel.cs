@@ -13,14 +13,14 @@ namespace BNS360.Core.Models
     public class BusinessModel
     {
         public int Id { get; set; }
-        public string BusinessNameArabic { get; set; }
+        public string BusinessNameArabic { get; set; } = string.Empty;
         public string? BusinessNameEnglish { get; set; }
-        public string BusinessDescriptionArabic { get; set; }
+        public string BusinessDescriptionArabic { get; set; } = string.Empty;
         public string? BusinessDescriptionEnglish { get; set; }
-        public string BusinessAddressArabic { get; set; }
+        public string BusinessAddressArabic { get; set; } = string.Empty;
         public string? BusinessAddressEnglish { get; set; }
         public DayOfWeekEnum Holidays { get; set; }
-        public List<string> Numbers { get; set; }
+        public List<string> Numbers { get; set; } = [];
         public DateTime Opening { get; set; }
         public DateTime Closing { get; set; }
         public decimal Longitude { get; set; }
@@ -32,10 +32,10 @@ namespace BNS360.Core.Models
         public ICollection<IFormFile>? Images { get; set; }
         public List<string>? ImageUrls { get; set; }
         [ForeignKey("UserId")]
-        public AppUser AppUser { get; set; }
-        public string UserId { get; set; }
+        public AppUser AppUser { get; set; } = null!;
+        public string UserId { get; set; } = string.Empty;
         public int? CategoriesModelId { get; set; }
         [ForeignKey("CategoriesModelId")]
-        public CategoryModel CategoryModel { get; set; }
+        public CategoryModel? CategoryModel { get; set; }
     }
 }

@@ -12,20 +12,20 @@ namespace BNS360.Core.Models
     public class JobModel
     {
         public int Id { get; set; }
-        public string JobTitleArabic { get; set; }
+        public string JobTitleArabic { get; set; } = string.Empty;
         public string? JobTitleEnglish { get; set; }
-        public string JobDescriptionArabic { get; set; }
+        public string JobDescriptionArabic { get; set; } = string.Empty;
         public string? JobDescriptionEnglish { get; set; }
-        public string AddreesInArabic { get; set; }
+        public string AddreesInArabic { get; set; } = string.Empty;
         public string? AddreesInEnglish { get; set; }
-        public List<string> Numbers { get; set; }
+        public List<string> Numbers { get; set; } = [];
         public JobType Type { get; set; }
         public int WorkHours { get; set; }
         public decimal Salary { get; set; }
-        public List<string> Requirements { get; set; }
+        public List<string> Requirements { get; set; } = [];
         public DateTime? TimeAddedjob { get; set; } = DateTime.Now;
-        public string UserId { get; set; }
+        public string UserId { get; set; } = string.Empty;
         [ForeignKey("UserId")]
-        public AppUser AppUser { get; set; }
+        public AppUser AppUser { get; set; } = null!;
     }
 }

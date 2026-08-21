@@ -1,10 +1,10 @@
-﻿using AutoMapper;
-using BNS360.Core.Dto;
+﻿using BNS360.Core.Dto;
 using BNS360.Core.Errors;
 using BNS360.Core.IRepository;
 using BNS360.Core.IServices;
 using BNS360.Core.Models;
 using BNS360.Repository.Data;
+using BNS360.Repository.Mapping;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -17,13 +17,11 @@ namespace BNS360.Repository.Repository
     public class CategoryRepository : ICategoryRepository
     {
         private readonly AppDbContext _dbContext;
-        private readonly IMapper _mapper;
         private readonly IImageService _imageService;
 
-        public CategoryRepository(AppDbContext context, IMapper mapper, IImageService fileService)
+        public CategoryRepository(AppDbContext context, IImageService fileService)
         {
             _dbContext = context;
-            _mapper = mapper;
             _imageService = fileService;
         }
         public async Task<ApiResponse> CreateCategory(CategoryModelDto model)
@@ -33,7 +31,7 @@ namespace BNS360.Repository.Repository
             {
                 return new ApiResponse(400, "التصنيف موجود مسبقا");
             }
-            var category = _mapper.Map<CategoryModelDto, CategoryModel>(model);
+            var category = model.ToEntity();
 
             if (model.Image != null)
             {

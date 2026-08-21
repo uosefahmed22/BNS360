@@ -15,6 +15,9 @@ using BNS360.Repository.Services;
 using BNS360.Core.IServices;
 using BNS360.Core.IRepository;
 using BNS360.Repository.Repository;
+using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
+using BNS360.Apis.Filters;
 
 namespace BNS360.Apis.Extentions
 {
@@ -94,7 +97,13 @@ namespace BNS360.Apis.Extentions
 
 
             services.AddIdentity<AppUser, IdentityRole>(options =>
-                options.SignIn.RequireConfirmedAccount = true)
+            {
+                options.SignIn.RequireConfirmedAccount = true;
+                options.Lockout.AllowedForNewUsers = true;
+                options.Lockout.MaxFailedAccessAttempts = 5;
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+                options.User.RequireUniqueEmail = true;
+            })
                 .AddDefaultTokenProviders()
                 .AddEntityFrameworkStores<AppDbContext>();
 
@@ -104,11 +113,15 @@ namespace BNS360.Apis.Extentions
             //    options.JsonSerializerOptions.WriteIndented = true;
             //});
 
-            services.AddControllers().AddJsonOptions(options =>
-            {
-                options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
-                options.JsonSerializerOptions.WriteIndented = true;
-            });
+            services.AddControllers(options =>
+                {
+                    options.Filters.Add<ApiResponseStatusCodeFilter>();
+                })
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+                    options.JsonSerializerOptions.WriteIndented = true;
+                });
 
 
             services.AddEndpointsApiExplorer();
@@ -117,14 +130,56 @@ namespace BNS360.Apis.Extentions
             services.AddSwaggerDocumentation();
             // Add Memory Cache
             services.AddMemoryCache();
-            //configure Auto Mapper
-            services.AddAutoMapper(typeof(MappingProfile));
-            //Cloudinary Configuration
-            services.Configure<CloudinarySettings>(configuration.GetSection("CloudinarySetting"));
-
-            services.AddSingleton(cloudinary =>
+            services.AddRateLimiter(options =>
             {
-                var config = configuration.GetSection("CloudinarySetting").Get<CloudinarySettings>();
+                options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+                options.OnRejected = async (context, cancellationToken) =>
+                {
+                    context.HttpContext.Response.ContentType = "application/json";
+                    await context.HttpContext.Response.WriteAsJsonAsync(
+                        new
+                        {
+                            StatusCode = StatusCodes.Status429TooManyRequests,
+                            Message = "Too many requests. Please try again later."
+                        },
+                        cancellationToken);
+                };
+
+                options.AddPolicy("auth", httpContext =>
+                    RateLimitPartition.GetFixedWindowLimiter(
+                        httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                        _ => new FixedWindowRateLimiterOptions
+                        {
+                            PermitLimit = 10,
+                            Window = TimeSpan.FromMinutes(1),
+                            QueueLimit = 0
+                        }));
+
+                options.AddPolicy("email", httpContext =>
+                    RateLimitPartition.GetFixedWindowLimiter(
+                        httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                        _ => new FixedWindowRateLimiterOptions
+                        {
+                            PermitLimit = 3,
+                            Window = TimeSpan.FromMinutes(10),
+                            QueueLimit = 0
+                        }));
+            });
+            //Cloudinary Configuration
+            services.AddOptions<CloudinarySettings>()
+                .Bind(configuration.GetSection("CloudinarySetting"))
+                .Validate(settings =>
+                    !string.IsNullOrWhiteSpace(settings.CloudName)
+                    && !string.IsNullOrWhiteSpace(settings.ApiKey)
+                    && !string.IsNullOrWhiteSpace(settings.ApiSecret),
+                    "CloudinarySetting is incomplete.")
+                .ValidateOnStart();
+
+            services.AddSingleton(serviceProvider =>
+            {
+                var config = serviceProvider
+                    .GetRequiredService<Microsoft.Extensions.Options.IOptions<CloudinarySettings>>()
+                    .Value;
                 var account = new CloudinaryDotNet.Account(config.CloudName, config.ApiKey, config.ApiSecret);
                 return new CloudinaryDotNet.Cloudinary(account);
             });
@@ -146,9 +201,17 @@ namespace BNS360.Apis.Extentions
             services.AddScoped<IPropertyRepository, PropertyRepository>();
 
             // Configure CORS using the extension method
-            services.ConfigureCors();
+            services.ConfigureCors(configuration);
 
-            services.Configure<MailSettings>(configuration.GetSection(nameof(MailSettings)));
+            services.AddOptions<MailSettings>()
+                .Bind(configuration.GetSection(nameof(MailSettings)))
+                .Validate(settings =>
+                    !string.IsNullOrWhiteSpace(settings.Email)
+                    && !string.IsNullOrWhiteSpace(settings.Password)
+                    && !string.IsNullOrWhiteSpace(settings.SmtpServer)
+                    && settings.Port is > 0 and <= 65535,
+                    "MailSettings is incomplete.")
+                .ValidateOnStart();
 
             // Add custom error handling for model validation
             services.Configure<ApiBehaviorOptions>(options =>
@@ -156,11 +219,11 @@ namespace BNS360.Apis.Extentions
                 options.InvalidModelStateResponseFactory = context =>
                 {
                     var errors = context.ModelState
-                        .Where(e => e.Value.Errors.Count > 0)
+                        .Where(e => e.Value?.Errors.Count > 0)
                         .Select(e => new
                         {
                             Field = e.Key,
-                            ErrorMessages = e.Value.Errors.Select(x => x.ErrorMessage).ToArray()
+                            ErrorMessages = e.Value!.Errors.Select(x => x.ErrorMessage).ToArray()
                         }).ToArray();
 
                     var result = new
@@ -173,15 +236,24 @@ namespace BNS360.Apis.Extentions
                 };
             });
         }
-        public static void ConfigureCors(this IServiceCollection services)
+        public static void ConfigureCors(this IServiceCollection services, IConfiguration configuration)
         {
+            var allowedOrigins = configuration.GetSection("AllowedOrigins").Get<string[]>() ?? [];
+
             services.AddCors(options =>
             {
                 options.AddPolicy("Open", builder =>
                 {
-                    builder.AllowAnyOrigin()
-                           .AllowAnyMethod()
-                           .AllowAnyHeader();
+                    if (allowedOrigins.Length > 0)
+                    {
+                        builder.WithOrigins(allowedOrigins);
+                    }
+                    else
+                    {
+                        builder.SetIsOriginAllowed(_ => false);
+                    }
+
+                    builder.AllowAnyMethod().AllowAnyHeader();
                 });
             });
         }
@@ -191,11 +263,12 @@ namespace BNS360.Apis.Extentions
             {
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
-                    Description = "JWT Authorization header using the Bearer scheme. Example: \"Bearer {token}\"",
+                    Description = "Enter the JWT access token only. Scalar adds the Bearer prefix automatically.",
                     Name = "Authorization",
                     In = ParameterLocation.Header,
-                    Type = SecuritySchemeType.ApiKey,
-                    Scheme = "Bearer"
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "bearer",
+                    BearerFormat = "JWT"
                 });
 
                 c.AddSecurityRequirement(new OpenApiSecurityRequirement

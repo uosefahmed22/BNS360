@@ -9,10 +9,19 @@ namespace BNS360.Core.Models.Auth
 {
     public class ResetPassword
     {
+        [Required]
         [EmailAddress]
-        public string Email { get; set; }
-        public string Password { get; set; }
+        public string Email { get; set; } = string.Empty;
+
+        [Required]
+        public string ResetToken { get; set; } = string.Empty;
+
+        [Required]
+        [MinLength(8)]
+        public string Password { get; set; } = string.Empty;
+
+        [Required]
         [Compare("Password", ErrorMessage = "Passwords do not match")]
-        public string ConfirmPassword { get; set; }
+        public string ConfirmPassword { get; set; } = string.Empty;
     }
 }

@@ -36,6 +36,10 @@ namespace BNS360.Apis.Controllers
                 return BadRequest(new ApiResponse(400, "Invalid user"));
             }
             var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                return Unauthorized(new ApiResponse(401, "Invalid user"));
+            }
             var result = await _profileService.UpdateUserImageAsync(user.Id, image);                                                              
             if (result.StatusCode == 400)
             {
@@ -102,6 +106,10 @@ namespace BNS360.Apis.Controllers
             }
            
             var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                return Unauthorized(new ApiResponse(401, "Invalid user"));
+            }
             var result = await _profileService.GetUserBusiness(user.Id);
             if (result.StatusCode == 400)
             {
@@ -119,6 +127,10 @@ namespace BNS360.Apis.Controllers
                 return BadRequest(new ApiResponse(400, "Invalid user"));
             }
             var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                return Unauthorized(new ApiResponse(401, "Invalid user"));
+            }
             var result = await _profileService.GetUserJobs(user.Id);
             if (result.StatusCode == 400)
             {
@@ -136,6 +148,10 @@ namespace BNS360.Apis.Controllers
                 return BadRequest(new ApiResponse(400, "Invalid user"));
             }
             var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                return Unauthorized(new ApiResponse(401, "Invalid user"));
+            }
             var result = await _profileService.GetUserCraftsMen(user.Id);
             if (result.StatusCode == 400)
             {

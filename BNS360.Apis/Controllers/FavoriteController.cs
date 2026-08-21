@@ -37,6 +37,10 @@ namespace BNS360.Apis.Controllers
                 return BadRequest(new ApiResponse(400, "Invalid user"));
             }
             var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                return Unauthorized(new ApiResponse(401, "Invalid user"));
+            }
             var result = await _favoriteRepository.AddBusinessToFavorite(user.Id, businessId);
             if (result.StatusCode == 400)
             {
@@ -58,6 +62,10 @@ namespace BNS360.Apis.Controllers
                 return BadRequest(new ApiResponse(400, "Invalid user"));
             }
             var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                return Unauthorized(new ApiResponse(401, "Invalid user"));
+            }
             var result = await _favoriteRepository.RemoveBusinessFromFavorite(user.Id, businessId);
             if (result.StatusCode == 400)
             {
@@ -75,6 +83,10 @@ namespace BNS360.Apis.Controllers
                 return BadRequest(new ApiResponse(400, "Invalid user"));
             }
             var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                return Unauthorized(new ApiResponse(401, "Invalid user"));
+            }
             var result = await _favoriteRepository.GetFavoriteBusinesses(user.Id);
             if (result.StatusCode == 400)
             {
@@ -96,6 +108,10 @@ namespace BNS360.Apis.Controllers
                 return BadRequest(new ApiResponse(400, "Invalid user"));
             }
             var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                return Unauthorized(new ApiResponse(401, "Invalid user"));
+            }
             var result = await _favoriteRepository.AddCraftsMenToFavorite(user.Id, craftsMenId);
             if (result.StatusCode == 400)
             {
@@ -117,6 +133,10 @@ namespace BNS360.Apis.Controllers
                 return BadRequest(new ApiResponse(400, "Invalid user"));
             }
             var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                return Unauthorized(new ApiResponse(401, "Invalid user"));
+            }
             var result = await _favoriteRepository.RemovecraftsMenFromFavorite(user.Id, craftsMenId);
             if (result.StatusCode == 400)
             {
@@ -134,6 +154,10 @@ namespace BNS360.Apis.Controllers
                 return BadRequest(new ApiResponse(400, "Invalid user"));
             }
             var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                return Unauthorized(new ApiResponse(401, "Invalid user"));
+            }
             var result = await _favoriteRepository.GetCraftsMenFavorites(user.Id);
             if (result.StatusCode == 400)
             {

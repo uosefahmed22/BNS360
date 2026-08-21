@@ -9,7 +9,7 @@ namespace BNS360.Core.IServices
 {
     public interface IImageService
     {
-        Task DeleteImageAsync(string imageFileName);
-        Task<Tuple<int, string>> UploadImageAsync(IFormFile imageFile);
+        Task DeleteImageAsync(string imageFileName, CancellationToken cancellationToken = default);
+        Task<Tuple<int, string>> UploadImageAsync(IFormFile imageFile, CancellationToken cancellationToken = default);
     }
 }

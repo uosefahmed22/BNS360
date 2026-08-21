@@ -17,7 +17,7 @@ namespace BNS360.Repository.Data.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.8")
+                .HasAnnotation("ProductVersion", "8.0.30")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -116,20 +116,29 @@ namespace BNS360.Repository.Data.Migrations
 
                     b.Property<string>("JwtId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("Token")
+                    b.Property<string>("TokenHash")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
 
                     b.Property<bool>("Used")
                         .HasColumnType("bit");
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("JwtId");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique();
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("RefreshTokens");
                 });
@@ -336,11 +345,20 @@ namespace BNS360.Repository.Data.Migrations
 
                     b.HasIndex("CraftsMenId");
 
-                    b.HasIndex("UserId");
-
                     b.HasIndex("businessId");
 
-                    b.ToTable("Favorites");
+                    b.HasIndex("UserId", "CraftsMenId")
+                        .IsUnique()
+                        .HasFilter("[CraftsMenId] IS NOT NULL");
+
+                    b.HasIndex("UserId", "businessId")
+                        .IsUnique()
+                        .HasFilter("[businessId] IS NOT NULL");
+
+                    b.ToTable("Favorites", t =>
+                        {
+                            t.HasCheckConstraint("CK_Favorites_ExactlyOneTarget", "([businessId] IS NOT NULL AND [CraftsMenId] IS NULL) OR ([businessId] IS NULL AND [CraftsMenId] IS NOT NULL)");
+                        });
                 });
 
             modelBuilder.Entity("BNS360.Core.Models.FeedbackModel", b =>
@@ -362,7 +380,8 @@ namespace BNS360.Repository.Data.Migrations
 
                     b.Property<string>("Feedback")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -379,7 +398,12 @@ namespace BNS360.Repository.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Feedbacks");
+                    b.ToTable("Feedbacks", t =>
+                        {
+                            t.HasCheckConstraint("CK_Feedbacks_ExactlyOneTarget", "([BusinessModelId] IS NOT NULL AND [CraftsMenModelId] IS NULL) OR ([BusinessModelId] IS NULL AND [CraftsMenModelId] IS NOT NULL)");
+
+                            t.HasCheckConstraint("CK_Feedbacks_Rating", "[rating] BETWEEN 1 AND 5");
+                        });
                 });
 
             modelBuilder.Entity("BNS360.Core.Models.JobModel", b =>
@@ -519,7 +543,8 @@ namespace BNS360.Repository.Data.Migrations
 
                     b.HasIndex("JobId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId", "JobId")
+                        .IsUnique();
 
                     b.ToTable("SavedJobs");
                 });
@@ -655,6 +680,17 @@ namespace BNS360.Repository.Data.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
+                });
+
+            modelBuilder.Entity("BNS360.Core.Models.Auth.RefreshToken", b =>
+                {
+                    b.HasOne("BNS360.Core.Models.Auth.AppUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("BNS360.Core.Models.BusinessModel", b =>

@@ -75,9 +75,9 @@ namespace BNS360.Repository.Services
                 }
                 return new ApiResponse(400, "الصلاحية موجودة مسبقا");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return new ApiResponse(400, ex.Message);
+                throw;
             }
         }
         public async Task<ApiResponse> DeleteRole(string roleName)
@@ -96,9 +96,9 @@ namespace BNS360.Repository.Services
                 }
                 return new ApiResponse(400, "فشل في حذف الصلاحية");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return new ApiResponse(400, ex.Message);
+                throw;
             }
         }
         public async Task<ApiResponse> GetRolesAsync()
@@ -110,9 +110,9 @@ namespace BNS360.Repository.Services
                     .ToListAsync();
                 return new ApiResponse(200, roles);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return new ApiResponse(400, ex.Message);
+                throw;
             }
         }
         public async Task<ApiResponse> GetRolesByUser(string email)
@@ -127,9 +127,9 @@ namespace BNS360.Repository.Services
                 var roles = await _userManager.GetRolesAsync(user);
                 return new ApiResponse(200, roles);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return new ApiResponse(400, ex.Message);
+                throw;
             }
         }
         public async Task<ApiResponse> GetUsers()
@@ -139,7 +139,7 @@ namespace BNS360.Repository.Services
                 var users = await _userManager.Users
                     .Select(x => new UserDto
                     {
-                        Email = x.Email,
+                        Email = x.Email ?? string.Empty,
                         FullName = x.FullName,
                         ImageUrl = x.ImageUrl
                     })
@@ -148,14 +148,17 @@ namespace BNS360.Repository.Services
                 foreach (var user in users)
                 {
                     var appUser = await _userManager.FindByEmailAsync(user.Email);
-                    user.UserRole = (List<string>)await _userManager.GetRolesAsync(appUser);
+                    if (appUser != null)
+                    {
+                        user.UserRole = (List<string>)await _userManager.GetRolesAsync(appUser);
+                    }
                 }
 
                 return new ApiResponse(200, users);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return new ApiResponse(400, ex.Message);
+                throw;
             }
         }
         public async Task<ApiResponse> RemoveUserFromRole(string email, string roleName)
@@ -179,9 +182,9 @@ namespace BNS360.Repository.Services
                 }
                 return new ApiResponse(400, "فشل في حذف المستخدم من الصلاحية");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return new ApiResponse(400, ex.Message);
+                throw;
             }
         }
         

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using System.Security.Claims;
 
 namespace BNS360.Apis.Controllers
@@ -15,12 +16,15 @@ namespace BNS360.Apis.Controllers
     {
 
         private readonly IAuthService _authService;
+        private readonly IConfiguration _configuration;
 
-        public AuthController(IAuthService authService)
+        public AuthController(IAuthService authService, IConfiguration configuration)
         {
             _authService = authService;
+            _configuration = configuration;
         }
         [HttpPost("register")]
+        [EnableRateLimiting("email")]
         public async Task<IActionResult> Register([FromBody] Register model)
         {
             if (!ModelState.IsValid)
@@ -35,6 +39,7 @@ namespace BNS360.Apis.Controllers
             return Ok(result);
         }
         [HttpPost("login")]
+        [EnableRateLimiting("auth")]
         public async Task<IActionResult> Login([FromBody] Login model)
         {
             if (!ModelState.IsValid)
@@ -49,6 +54,7 @@ namespace BNS360.Apis.Controllers
             return Ok(result);
         }
         [HttpPost("refresh-token")]
+        [EnableRateLimiting("auth")]
         public async Task<IActionResult> RefreshToken([FromBody] TokenRequest model)
         {
             var result = await _authService.RefreshToken(model);
@@ -59,6 +65,7 @@ namespace BNS360.Apis.Controllers
             return Ok(result);
         }
         [HttpPost("revoke-token")]
+        [EnableRateLimiting("auth")]
         public async Task<IActionResult> RevokeToken([FromBody] TokenRequest model)
         {
             var result = await _authService.RevokeToken(model);
@@ -69,6 +76,7 @@ namespace BNS360.Apis.Controllers
             return Ok(result);
         }
         [HttpPost("forget-password")]
+        [EnableRateLimiting("email")]
         public async Task<IActionResult> ForgetPassword(string email)
         {
             var result = await _authService.ForgetPassword(email);
@@ -79,6 +87,7 @@ namespace BNS360.Apis.Controllers
             return Ok(result);
         }
         [HttpPost("verify-otp")]
+        [EnableRateLimiting("auth")]
         public IActionResult VerifyOtp([FromBody] VerifyOtp model)
         {
             var result = _authService.VerfiyOtp(model);
@@ -89,6 +98,7 @@ namespace BNS360.Apis.Controllers
             return Ok(result);
         }
         [HttpPost("reset-password")]
+        [EnableRateLimiting("auth")]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPassword model)
         {
             var result = await _authService.ResetPasswordAsync(model);
@@ -99,6 +109,7 @@ namespace BNS360.Apis.Controllers
             return Ok(result);
         }
         [HttpPost("resend-confirmation-email")]
+        [EnableRateLimiting("email")]
         public async Task<IActionResult> ResendConfirmationEmail(string email)
         {
             var result = await _authService.ResendConfirmationEmailAsync(email, GenerateCallBackUrl);
@@ -147,8 +158,18 @@ namespace BNS360.Apis.Controllers
         {
             var encodedToken = Uri.EscapeDataString(token);
             var encodedUserId = Uri.EscapeDataString(userId);
-            var callBackUrl = $"{Request.Scheme}://{Request.Host}/api/Auth/confirm-email?userId={encodedUserId}&confirmationToken={encodedToken}";
-            return callBackUrl;
+            var configuredBaseUrl = _configuration["PublicBaseUrl"];
+            if (!Uri.TryCreate(configuredBaseUrl, UriKind.Absolute, out var baseUri)
+                || (baseUri.Scheme != Uri.UriSchemeHttps && !baseUri.IsLoopback))
+            {
+                throw new InvalidOperationException(
+                    "PublicBaseUrl must be an absolute HTTPS URL (HTTP is allowed only for localhost).");
+            }
+
+            return new Uri(
+                baseUri,
+                $"/api/Auth/confirm-email?userId={encodedUserId}&confirmationToken={encodedToken}")
+                .AbsoluteUri;
         }
     }
 }

@@ -14,6 +14,8 @@ namespace BNS360.Repository.Data.Config
     {
         public void Configure(EntityTypeBuilder<SavedJobsModel> builder)
         {
+            builder.HasIndex(s => new { s.UserId, s.JobId }).IsUnique();
+
             builder.HasOne(s => s.JobModel)
                    .WithMany() 
                    .HasForeignKey(s => s.JobId)

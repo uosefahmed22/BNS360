@@ -1,9 +1,9 @@
-﻿using AutoMapper;
 using BNS360.Core.Dto;
 using BNS360.Core.Errors;
 using BNS360.Core.IRepository;
 using BNS360.Core.Models;
 using BNS360.Repository.Data;
+using BNS360.Repository.Mapping;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -16,41 +16,39 @@ namespace BNS360.Repository.Repository
     public class JobRepository : IJobRepository
     {
         private readonly AppDbContext _dbContext;
-        private readonly IMapper _mapper;
-
-        public JobRepository(AppDbContext dbContext,IMapper mapper)
+        public JobRepository(AppDbContext dbContext)
         {
             _dbContext = dbContext;
-            _mapper = mapper;
         }
         public async Task<ApiResponse> AddJob(JobModelDto model)
         {
             try
             {
-                var job = _mapper.Map<JobModelDto, JobModel>(model);
+                var job = model.ToEntity();
                 await _dbContext.Jobs.AddAsync(job);
                 await _dbContext.SaveChangesAsync();
                 return new ApiResponse(200, "تمت الاضافة بنجاح");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return new ApiResponse(400, ex.Message);
+                throw;
             }
         }
-        public async Task<ApiResponse> DeleteJob(int JobId)
+        public async Task<ApiResponse> DeleteJob(int jobId, string userId)
         {
             try
             {
-                var job = await _dbContext.Jobs.FindAsync(JobId);
+                var job = await _dbContext.Jobs
+                    .FirstOrDefaultAsync(x => x.Id == jobId && x.UserId == userId);
                 if (job == null)
                     return new ApiResponse(404, "الوظيفة غير موجودة");
                 _dbContext.Jobs.Remove(job);
                 await _dbContext.SaveChangesAsync();
                 return new ApiResponse(200, "تم الحذف بنجاح");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return new ApiResponse(400, ex.Message);
+                throw;
             }
         }
         public async Task<ApiResponse> GetAllJobs()
@@ -78,9 +76,9 @@ namespace BNS360.Repository.Repository
                     .ToListAsync();
                 return new ApiResponse(200, jobs);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return new ApiResponse(400, ex.Message);
+                throw;
             }
         }
         public async Task<ApiResponse> GetJobById(int JobId)
@@ -111,26 +109,27 @@ namespace BNS360.Repository.Repository
                     return new ApiResponse(404, "الوظيفة غير موجودة");
                 return new ApiResponse(200, job);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return new ApiResponse(400, ex.Message);
+                throw;
             }
         }
-        public async Task<ApiResponse> UpdateJob(int JobId, JobModelDto model)
+        public async Task<ApiResponse> UpdateJob(int jobId, string userId, JobModelDto model)
         {
             try
             {
-                var job = await _dbContext.Jobs.FindAsync(JobId);
+                var job = await _dbContext.Jobs
+                    .FirstOrDefaultAsync(x => x.Id == jobId && x.UserId == userId);
                 if (job == null)
                     return new ApiResponse(404, "الوظيفة غير موجودة");
 
-                _mapper.Map(model, job);
+                model.ApplyTo(job);
                 await _dbContext.SaveChangesAsync();
                 return new ApiResponse(200, "تم التعديل بنجاح");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return new ApiResponse(400, ex.Message);
+                throw;
             }
         }
     }

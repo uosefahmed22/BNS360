@@ -9,6 +9,7 @@ namespace BNS360.Core.IServices.Auth
     public interface IOtpService
     {
         public string GenerateOtp(string email);
-        public bool IsValidOtp(string email, string otp);
+        public string? VerifyOtpAndCreateResetToken(string email, string otp);
+        public bool ConsumeResetToken(string email, string resetToken);
     }
 }

@@ -11,9 +11,9 @@ namespace BNS360.Core.Models.Auth
 {
     public class AppUser : IdentityUser
     {
-        public string FullName { get; set; }
+        public string FullName { get; set; } = string.Empty;
         public string? ImageUrl { get; set; }
         [NotMapped]
-        public IFormFile Image { get; set; }
+        public IFormFile? Image { get; set; }
     }
 }

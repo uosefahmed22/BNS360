@@ -31,21 +31,21 @@ namespace BNS360.Repository.Services
         {
             try
             {
-                var user = _userManager.FindByEmailAsync(email);
+                var user = await _userManager.FindByEmailAsync(email);
                 if (user == null)
                 {
                     return new ApiResponse(404, "المستخدم غير موجود");
                 }
-                var result = await _userManager.DeleteAsync(user.Result);
+                var result = await _userManager.DeleteAsync(user);
                 if (result.Succeeded)
                 {
                     return new ApiResponse(200, "تم حذف المستخدم بنجاح");
                 }
                 return new ApiResponse(400, "فشل في حذف المستخدم");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return new ApiResponse(400, ex.Message);
+                throw;
             }
         }
         public async Task<ApiResponse> GetUser(string email)
@@ -60,7 +60,7 @@ namespace BNS360.Repository.Services
 
             var userDto = new UserDto
             {
-                Email = user.Email,
+                Email = user.Email ?? string.Empty,
                 FullName = user.FullName,
                 ImageUrl = user.ImageUrl,
                 UserRole = (List<string>)roles
@@ -120,9 +120,9 @@ namespace BNS360.Repository.Services
                 await _userManager.UpdateAsync(user);
                 return new ApiResponse(200, "تم تعديل الاسم بنجاح");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return new ApiResponse(400, ex.Message);
+                throw;
             }
         }
         public async Task<ApiResponse> GetUserBusiness(string UserId) { 
@@ -157,9 +157,9 @@ namespace BNS360.Repository.Services
                 }
                 return new ApiResponse(200, business);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return new ApiResponse(400, ex.Message);
+                throw;
             }
         }
         public async Task<ApiResponse> GetUserJobs(string UserId)
@@ -192,9 +192,9 @@ namespace BNS360.Repository.Services
                 }
                 return new ApiResponse(200, jobs);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return new ApiResponse(400, ex.Message);
+                throw;
             }
         }
         public async Task<ApiResponse> GetUserCraftsMen(string UserId) { 
@@ -226,9 +226,9 @@ namespace BNS360.Repository.Services
                 }
                 return new ApiResponse(200, craftsMen);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return new ApiResponse(400, ex.Message);
+                throw;
             }
         }
     }

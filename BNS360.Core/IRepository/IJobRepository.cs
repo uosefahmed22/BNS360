@@ -11,8 +11,8 @@ namespace BNS360.Core.IRepository
     public interface IJobRepository
     {
         Task<ApiResponse> AddJob(JobModelDto model);
-        Task<ApiResponse> UpdateJob(int JobId, JobModelDto model);
-        Task<ApiResponse> DeleteJob(int JobId);
+        Task<ApiResponse> UpdateJob(int jobId, string userId, JobModelDto model);
+        Task<ApiResponse> DeleteJob(int jobId, string userId);
         Task<ApiResponse> GetJobById(int JobId);
         Task<ApiResponse> GetAllJobs();
     }

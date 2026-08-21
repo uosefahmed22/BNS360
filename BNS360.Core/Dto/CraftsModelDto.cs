@@ -10,9 +10,9 @@ namespace BNS360.Core.Dto
 {
     public class CraftsModelDto
     {
-        public string CraftsNameArabic { get; set; }
+        public string CraftsNameArabic { get; set; } = string.Empty;
         public string? CraftsNameEnglish { get; set; }
         [NotMapped]
-        public IFormFile Image { get; set; }
+        public IFormFile? Image { get; set; }
     }
 }

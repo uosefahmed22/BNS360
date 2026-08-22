@@ -12,17 +12,9 @@ namespace BNS360.Apis.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AuthController : ControllerBase
+    public class AuthController(IAuthService _authService, IConfiguration _configuration) : ControllerBase
     {
 
-        private readonly IAuthService _authService;
-        private readonly IConfiguration _configuration;
-
-        public AuthController(IAuthService authService, IConfiguration configuration)
-        {
-            _authService = authService;
-            _configuration = configuration;
-        }
         [HttpPost("register")]
         [EnableRateLimiting("email")]
         public async Task<IActionResult> Register([FromBody] Register model)
